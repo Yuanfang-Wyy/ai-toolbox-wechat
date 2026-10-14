@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1410" height="600" viewBox="0 0 1410 600">
+  <rect width="1410" height="600" fill="#faf8f2"/>
+  <rect x="36" y="40" width="8" height="520" fill="#ff642a"/>
+  <g font-family="PingFang SC,Microsoft YaHei,sans-serif">
+    <text x="92" y="92" font-size="28" fill="#777">AI顺手工具箱</text>
+    <text x="705" y="185" text-anchor="middle" font-size="72" font-weight="700" fill="#242424">步骤变图</text>
+    <text x="705" y="242" text-anchor="middle" font-size="28" fill="#666">把操作顺序讲明白</text>
+    <rect x="505" y="292" width="400" height="196" rx="12" fill="#eeeae2" stroke="#aaa" stroke-dasharray="8 6"/>
+    <text x="705" y="375" text-anchor="middle" font-size="24" fill="#666">成果截图放这里</text>
+    <text x="705" y="420" text-anchor="middle" font-size="20" fill="#666">版式模板 · 不是操作截图</text>
+    <text x="705" y="550" text-anchor="middle" font-size="26" fill="#ff642a">AI顺手工具箱</text>
+  </g>
+</svg>

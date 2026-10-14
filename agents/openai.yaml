@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI顺手工具箱编辑"
+  short_description: "围绕任务整合素材、筛选标题、制作逻辑配图与封面预览，仅存草稿"
+  default_prompt: "使用 $ai-toolbox-wechat 围绕读者任务整合资料、核查标题承诺并安排必要配图；需要时检查封面裁切，按本次授权保存草稿，发表由我本人审核操作。"
