@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import hashlib
+import ipaddress
 import json
 import re
 import sys
@@ -15,7 +16,19 @@ MAX_IMAGE_BYTES = 1_000_000
 WRITING_MODES = ("tested-tutorial", "documented-workflow", "task-comparison", "template-delivery")
 
 
+def valid_image_url(url):
+    try:
+        parsed = urlparse(url)
+        if parsed.netloc.startswith("["):
+            ipaddress.IPv6Address(parsed.hostname)
+        return parsed.scheme == "https" and bool(parsed.hostname) and parsed.username is None and parsed.password is None and (parsed.port is None or parsed.port > 0)
+    except (TypeError, ValueError):
+        return False
+
+
 def verify_image(url):
+    if not valid_image_url(url):
+        return {"url": "<invalid URL>", "verified": False, "error": "图片必须为不含登录凭据的有效公开 HTTPS 地址"}
     result = {"url": url, "verified": False}
     try:
         request = Request(url, headers={"User-Agent": "AI-toolbox-media-check/1.1"})
@@ -149,8 +162,8 @@ def check(packet_path, content_only=False, verify_media=False):
     media_results = []
     for url in images:
         row = by_url.get(url)
-        if not urlparse(url).hostname or urlparse(url).username:
-            errors.append("图片必须为不含登录凭据的公开 HTTPS 地址")
+        if not valid_image_url(url):
+            errors.append("图片必须为不含登录凭据的有效公开 HTTPS 地址")
             continue
         if not row or not row.get("source_url") or not row.get("caption") or not row.get("rights_note"):
             errors.append("图片缺少来源、说明或授权备注：" + url)
@@ -160,12 +173,12 @@ def check(packet_path, content_only=False, verify_media=False):
             (warnings if content_only else errors).append("已知图片格式不是 PNG/JPEG：" + url)
         if row and isinstance(row.get("bytes"), int) and row["bytes"] > MAX_IMAGE_BYTES:
             (warnings if content_only else errors).append("已知图片超过 1,000,000 字节：" + url)
-    if verify_media and not errors:
+    if verify_media:
         for url in dict.fromkeys(images):
             result = verify_image(url)
             media_results.append(result)
             if not result["verified"]:
-                errors.append("图片验证失败：" + url + "；" + result["error"])
+                errors.append("图片验证失败：" + result["url"] + "；" + result["error"])
     elif images and not verify_media:
         warnings.append("图片尚未读取实际响应；写入前用 --verify-media 核验 MIME、签名与大小")
     headings = re.findall(r"^## .+", markdown, re.M)

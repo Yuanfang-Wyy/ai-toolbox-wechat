@@ -44,6 +44,25 @@
 - `image_ledger` 逐图记录 url、origin（official/user-capture/self-created/licensed）、source_url、caption、rights_note。真实自制图和有许可的图可用，不能把模仿生成图写成实测截图；上传条件见视觉标准。
 - `evidence_level` 写 official-docs/source-inspected/tested；tested 须附 `test_evidence` 文件路径列表（相对包目录），且文件确实存在。文件存在不能代替内容核验。
 
+### 从正文记录实际成果
+
+新版包的 `deliverables` 必须从正文已有的实际成果填写，不能留空，也不能只填成果名称或章节标题。有入口、输入、动作和验收的行动清单用 `kind=workflow`；供读者填写或反复使用的字段表、检查清单用 `kind=template`。不新增 `checklist` 类型，不强制“今晚做三件事”等栏目或新必填字段；正文已有完整成果时补齐交接记录，不另写重复清单。
+
+`text` 复制正文中完整的成果原文，`acceptance` 写读者怎样核查结果，`validation_note` 如实记录已验证和未实测的范围。下面是会议待办清单的说明用示例，仅展示现有字段组织；实际使用时应与本篇正文逐字匹配，不能把示例当作处理过真实材料的证据：
+
+```json
+{
+  "deliverables": [
+    {
+      "kind": "workflow",
+      "text": "1. 从会议原文摘出待办。\n2. 为每项填写任务、责任人、截止日期和原文出处；缺信息标记待确认。\n3. 逐项对照原文核查，不补写未出现的承诺。",
+      "acceptance": "每项待办都有原文出处；责任人和日期有依据，缺项明确标为待确认。",
+      "validation_note": "说明用示例，未处理真实会议材料；实际交付前仍需核对正文与原始记录。"
+    }
+  ]
+}
+```
+
 不把 API 密钥、Token、微信登录 URL 或用户私密资料加入包。
 
 ## 状态
@@ -52,4 +71,6 @@
 
 异常分支：`blocked_content / blocked_media / quota_blocked / conflict / uncertain`。
 
-只有直接创建成功回执，或明确关联本请求的后端成功凭据，才能进入 draft_created；只有成功读回才能进入 draft_verified。若已创建但读回受限，保留 article_id 和两项状态，不重复创建。后台 approved、review_hash、approved_hash 等字段属于内部流程，不证明本人已审阅。任何状态均不触发发表。
+只有直接创建成功回执，或明确关联本请求的后端成功凭据，才能进入 draft_created。进入 draft_verified 还需与本次任务关联的微信远端保存及正文验证证据：例如现有授权工具回执明确确认本次提交已保存且远端正文校验成功，或经现有授权连接取得远端正文读回与本次提交一致的证据。仅回读本地 Markdown、项目索引、远端标题或图片数量，不证明微信正文已更新；记录所用证据和验证范围，不把本地读回当作远端核验。
+
+若已创建但远端正文验证受限，保留 article_id 和两项状态，不重复创建。后台 approved、review_hash、approved_hash 等字段属于内部流程，不证明本人已审阅。任何状态均不触发发表。
