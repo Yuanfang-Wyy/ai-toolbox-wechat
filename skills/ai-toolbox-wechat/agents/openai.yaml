@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI顺手工具箱总入口"
+  short_description: "统一台账与核验，按需安排选题、写作、视觉和草稿交付，仅存草稿"
+  default_prompt: "使用 $ai-toolbox-wechat 按本次任务调用选题研究、视觉制作和草稿交付，共用同一私有台账完成写作审稿并分别报告核验结果，正式发表由我本人操作。"

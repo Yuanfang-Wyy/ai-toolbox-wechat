@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720" viewBox="0 0 1080 720" role="img" aria-label="把多份材料整合成任务教程的流程示意">
+  <rect width="1080" height="720" fill="#faf8f2"/>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#ff642a"/></marker></defs>
+  <g font-family="PingFang SC,Microsoft YaHei,sans-serif" fill="#242424">
+    <text x="70" y="85" font-size="44" font-weight="700">多份材料，讲清一个任务</text>
+    <text x="70" y="135" font-size="28" fill="#777">流程示意 · 不代表软件已实测</text>
+    <g fill="#fff" stroke="#d8d2c8" stroke-width="2">
+      <rect x="70" y="205" width="265" height="155" rx="14"/>
+      <rect x="410" y="205" width="265" height="155" rx="14"/>
+      <rect x="750" y="205" width="265" height="155" rx="14"/>
+      <rect x="70" y="450" width="945" height="135" rx="14"/>
+    </g>
+    <g font-size="36" text-anchor="middle">
+      <text x="202" y="270">选一个任务</text>
+      <text x="542" y="270">核对官方来源</text>
+      <text x="882" y="270">写步骤与示例</text>
+      <text x="542" y="508">核查输入、输出和必要条件</text>
+    </g>
+    <g font-size="36" text-anchor="middle" fill="#666">
+      <text x="202" y="320">明确任务</text>
+      <text x="542" y="320">文档/源码/实测</text>
+      <text x="882" y="320">保留示例文字</text>
+      <text x="542" y="555">没有验证的效果，不写成亲测结论</text>
+    </g>
+    <g stroke="#ff642a" stroke-width="4" fill="none" marker-end="url(#arrow)">
+      <path d="M342 282H395"/><path d="M682 282H735"/><path d="M882 367V428"/>
+    </g>
+    <text x="70" y="665" font-size="28" fill="#ff642a">AI顺手工具箱 · 示例布局，按实际内容修改</text>
+  </g>
+</svg>

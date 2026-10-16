@@ -29,9 +29,10 @@
 
 文章标题与封面短标题可以不同，核心任务词与主体放在中央。2.35:1 横图的中心 1:1 方形约占全宽 42.6%；这是检查用几何区域，不保证每个微信入口采用同一裁切。两侧可以放装饰和次要说明，但缺少它们仍应看懂主题。
 
-使用 [封面模板](../assets/cover-layout.svg) 或本次封面生成离线预览。先在终端进入本 Skill 的根目录，再运行：
+使用 [封面模板](../assets/cover-layout.svg) 或本次封面生成离线预览：
 
 ```bash
+# 在总入口 Skill 根目录运行
 python3 scripts/preview_cover.py --image assets/cover-layout.svg --output /tmp/cover-review.html
 ```
 

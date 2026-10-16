@@ -1,0 +1,40 @@
+{
+  "packet_version": 2,
+  "article_key": "tool-specific-task",
+  "agent_id": "writer-office",
+  "title": "针对读者任务选择的标题",
+  "title_candidates": [],
+  "title_reason": "推荐标题的任务价值与证据依据",
+  "markdown_path": "article.md",
+  "source_urls": [],
+  "article_type": "办公省事",
+  "writing_mode": "documented-workflow",
+  "topic_brief": {
+    "audience": "具体读者及使用场景",
+    "task": "要完成的具体任务及遇到频率",
+    "current_way": "目前的完成方式",
+    "improvement": "工具具体改善的环节",
+    "setup_cost": "安装、学习、费用或权限成本",
+    "evidence": "当前来源能支持的判断与未验证环节"
+  },
+  "editorial_note": "选题判断与理由，是否需要缩小承诺",
+  "reader_result": "实际提供的流程、提示词、模板或附件",
+  "opening_approach": "本篇从成果、场景、问题或判断中的合适角度切入",
+  "visual_plan": [],
+  "visual_reason": "说明必要图位与取法，或为何本篇文字已足够",
+  "deliverables": [
+    {
+      "kind": "workflow",
+      "text": "替换为正文中实际完整的流程文字，不是成果简介",
+      "acceptance": "读者如何判断任务完成",
+      "validation_note": "已验证的部分与尚未实测的部分"
+    }
+  ],
+  "evidence_level": "official-docs",
+  "image_ledger": [],
+  "action": "create",
+  "delivery_key": "tool-specific-task:create:r1",
+  "destination": "wechat_draft",
+  "requires_owner_review": true,
+  "publish": false
+}

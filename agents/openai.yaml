@@ -1,4 +1,4 @@
 interface:
-  display_name: "AI顺手工具箱编辑"
-  short_description: "围绕任务整合素材、筛选标题、制作逻辑配图与封面预览，仅存草稿"
-  default_prompt: "使用 $ai-toolbox-wechat 围绕读者任务整合资料、核查标题承诺并安排必要配图；需要时检查封面裁切，按本次授权保存草稿，发表由我本人审核操作。"
+  display_name: "AI顺手工具箱总入口"
+  short_description: "统一台账与核验，按需安排选题、写作、视觉和草稿交付，仅存草稿"
+  default_prompt: "使用 $ai-toolbox-wechat 按本次任务调用选题研究、视觉制作和草稿交付，共用同一私有台账完成写作审稿并分别报告核验结果，正式发表由我本人操作。"
