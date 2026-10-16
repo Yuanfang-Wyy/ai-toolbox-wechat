@@ -7,9 +7,9 @@ import re
 from pathlib import Path
 
 
-VERSION = "1.5.0"
+VERSION = "1.6.0"
 NAMES = ("ai-toolbox-wechat", "wechat-topic-research", "wechat-visual", "wechat-draft-delivery")
-REFS = ("editorial", "collaboration", "visual", "visual-production", "delivery", "feedback", "provenance", "workflow")
+REFS = ("editorial", "collaboration", "visual", "visual-production", "delivery", "feedback", "provenance", "workflow", "content-craft")
 MAIN_FILES = ("SKILL.md", "agents/openai.yaml", "assets/article-packet.json", "assets/cover-layout.svg", "assets/workflow-example.svg") + tuple("references/" + name + ".md" for name in REFS) + tuple("scripts/" + name for name in ("preflight.py", "preview_cover.py", "workflow_ledger.py", "build_public_bundle.py"))
 
 
@@ -52,7 +52,7 @@ def build(source, output, manifest):
         contents[relative] = text
     contents["README.md"] = """# AI顺手工具箱 Skill 套件
 
-版本：**1.5.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
+版本：**1.6.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
 
 | Skill | 用途 |
 |---|---|
@@ -67,13 +67,17 @@ def build(source, output, manifest):
 
 可复制提示词：
 
-> 阅读本仓库 v1.5.0 的 MUSE_GUIDE.md，使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
+> 阅读本仓库 v1.6.0 的 MUSE_GUIDE.md，使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
 
 公开读取不等于已有连接。Muse 使用现有安全凭据存储配置的 REST 或已有 OAuth MCP，直接调用云台账与草稿能力，不需新增本地依赖或让 Mac 开机。REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，当前注册版本1.1.0；运行前读取 OpenAPI 与 connection_status，确认实际部署，不因读取 Skill 就假定工具已增加。密钥不进入提示词、公开文档或仓库，台账数据也不公开。字段与请求示例见统一流程。
 
 ## 安装到支持 Agent Skills 的运行时
 
 从仓库 `skills/` 下复制四个完整目录到运行时 Skill 目录，保持它们为同级目录；专项通过相对路径引用总入口的共享规则和脚本。已有同名版本先比较和备份，使用目标运行时支持的安装流程；不默认覆盖。根目录 `SKILL.md`、references、assets、scripts 是自动生成的旧路径兼容版，旧链接继续有效；新安装优先使用 `skills/` 里的四个目录，避免重复安装总入口。
+
+## 内容辅助能力
+
+中文终审按需使用 `humanizer-zh`，正文插画与原创封面由视觉专项按需使用 `baoyu-article-illustrator`、`baoyu-cover-image`。它们是补充能力，不是新总入口；本机可安装固定版本，Muse 可直接读取 [账号适配规则](skills/ai-toolbox-wechat/references/content-craft.md) 和其中的固定上游来源，无需 Mac 在线或安装第三方运行依赖。公开包不打包上游整包、不启用额外付费模型、登录、托管或发表。真实软件图、准确关系图和插画分别处理；不机械增加图片或第一人称体验。
 
 ## 台账与核验
 
@@ -93,7 +97,7 @@ python3 scripts/build_public_bundle.py --skill-root /path/to/skill-directory --o
 
 输出目录必须为空。构建仅包含明确允许的规则、脚本和示例资源，不打包私有台账、稿件、回执、实测图片、缓存或服务器配置。公开包不新增模型 API、图床、付费服务或发表权限。模板 SVG 是示意，不是产品实测截图。版权与来源说明见 [provenance.md](skills/ai-toolbox-wechat/references/provenance.md)。
 """
-    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**1.5.0**。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。首次核对本页版本，后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
+    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**1.6.0**。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。首次核对本页版本，后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
     sections.extend("- [" + name + "](#skill-" + name + ")\n" for name in NAMES)
     sections.extend("- [" + name + "](#ref-" + name + ")\n" for name in REFS)
     for name in NAMES:
