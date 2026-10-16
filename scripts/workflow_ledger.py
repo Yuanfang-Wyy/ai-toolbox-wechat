@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private workflow ledger; local records never submit or publish a draft."""
+"""Read a private ledger backup; cloud mode forbids local production writes."""
 import argparse
 import copy
 import hashlib
@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-VERSION = "1.4.0"
+VERSION = "1.5.0"
 STATES = {"editorial": "pending", "media": "pending", "delivery": "not_submitted", "remote_verification": "pending", "mobile_preview": "pending", "owner_review": "pending"}
 
 
@@ -136,11 +136,12 @@ def record_receipt(entry, packet, markdown, request, receipt):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="私有单写者台账，不联网、不调用模型或微信；所有命令显式指定同一台账")
+    parser = argparse.ArgumentParser(description="本地台账备份工具；cloud 模式拒绝本地写入。生产使用现有授权云台账 API，不联网、不调用模型或微信")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("import-index", "record-topic", "reconcile", "record-review", "record-receipt", "list"):
         command = commands.add_parser(name)
         command.add_argument("--ledger", type=Path, required=True)
+        command.add_argument("--runtime", type=Path, default=Path(__file__).resolve().parents[1] / "runtime.json", help="私有配置；缺省按 cloud 只读，offline_simulation 仅限隔离演练")
         if name == "import-index":
             command.add_argument("--input", type=Path, required=True)
         elif name != "list":
@@ -154,6 +155,12 @@ def main():
             command.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
     try:
+        runtime = read_json(args.runtime) if args.runtime.exists() else {}
+        mode = runtime.get("ledger_mode", "cloud")
+        if mode not in {"cloud", "offline_simulation"}:
+            raise ValueError("未知台账模式；生产台账应使用云端")
+        if args.command != "list" and mode == "cloud":
+            raise ValueError("cloud 模式禁止本地台账写入；请通过现有授权 REST/MCP 云台账按 revision 合并，本地文件仅作只读备份")
         previous = args.ledger.read_bytes() if args.ledger.exists() else None
         if previous is None and args.command != "import-index":
             raise ValueError("先指定总控创建并导入索引的同一私有台账，不自行创建孤立台账")
@@ -161,7 +168,7 @@ def main():
         if ledger.get("ledger_version") != 1 or not isinstance(ledger.get("articles"), list):
             raise ValueError("未知台账格式")
         if args.command == "list":
-            print(json.dumps({"ok": True, "ledger": ledger}, ensure_ascii=False, indent=2))
+            print(json.dumps({"ok": True, "authoritative": False, "mode": mode, "note": "本地备份或隔离演练；生产以云台账为准", "ledger": ledger}, ensure_ascii=False, indent=2))
             return 0
         if args.command == "import-index":
             index = read_json(args.input)
@@ -206,7 +213,7 @@ def main():
             json.dump(ledger, stream, ensure_ascii=False, indent=2)
             stream.write("\n")
         os.replace(temp, args.ledger)
-        print(json.dumps({"ok": True, "ledger_path": str(args.ledger), **result}, ensure_ascii=False, indent=2))
+        print(json.dumps({"ok": True, "authoritative": False, "mode": mode, "ledger_path": str(args.ledger), **result}, ensure_ascii=False, indent=2))
         return 0
     except (ValueError, TypeError, KeyError, OSError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False))

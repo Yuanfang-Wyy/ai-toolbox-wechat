@@ -3,7 +3,7 @@ name: wechat-draft-delivery
 description: 通过《AI顺手工具箱》已有授权连接串行创建、更新或核查公众号草稿，执行预检、固定请求、快照比较与回执核验；只处理草稿，不发表或绕过接口限制。
 metadata:
   owner: wangyuyang
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # 公众号草稿交付
@@ -19,9 +19,9 @@ metadata:
 ## 授权与准备
 
 - 先确认当前任务已授权创建或更新草稿。查看、盘点、审稿和连接检查只读；不能因加载 Skill 自动上传。正式发表、群发和定时发表均交用户本人在后台操作。
-- 按现有 schema 发现状态、列表、读取、创建和更新五项逻辑能力，确认 `publishing_enabled=false`。能力或发表边界不明时暂停写入，继续本地检查。
-- 查私有台账与原任务，确认 `article_key`、正文指纹、审过的版本和原 `article_id`；项目索引不是完整微信草稿箱。更新必须先读取有效远端绑定及最新 `expected_snapshot`，不根据 `approved` 字段猜测可否更新。
-- 沿用 `packet.json` 运行总入口 `scripts/preflight.py` 的 `check` 和必要的 `prepare --verify-media`。固定 `request_id`、请求参数与指纹，冻结交付版本；同一请求不得替换内容，也不覆盖已存在的不同参数文件。
+- 按现有 schema 发现八项逻辑能力：状态、草稿列表/读取/创建/更新，以及云台账列表/读取/合并准备字段，确认 `publishing_enabled=false`。能力或发表边界不明时暂停写入，继续本地检查。
+- 查同一云台账与原任务，确认 `article_key`、正文指纹、审过的版本和原 `article_id`；项目索引不是完整微信草稿箱。更新必须先读取有效远端绑定及最新 `expected_snapshot`，不根据 `approved` 字段猜测可否更新。
+- 沿用 `packet.json` 运行总入口 `scripts/preflight.py` 的 `check` 和必要的 `prepare --verify-media`。固定 `request_id`、请求参数与指纹，冻结交付版本，并以当前云台账 revision 保存 request_id、payload_sha256、content_sha256 与 prepared；prepared 不是微信成功回执。同一请求不得替换内容，也不覆盖已存在的不同参数文件。
 
 ## 串行写入与核验
 
@@ -40,4 +40,4 @@ metadata:
 
 恢复使用 [交付规则](../ai-toolbox-wechat/references/delivery.md) 的串行流程：先核对原任务，只对确认允许重试的请求沿用原号和冻结参数；再次额度错误或结果不明时停止受影响处理。实际接口限制未查清前，不把所有 `approved` 草稿说成只能后台修改。
 
-交付回执写入私有工作目录并汇总共享台账；公开仓库只放规则和匿名示例。分别报告内容审稿、图片准备、保存、服务端核验、手机预览和待本人审核，不把某一项通过概括成全部完成。
+真实保存回执由云端服务自动录入台账；客户端保留原始回执，核对 `ledger_sync.status=recorded` 后再读同一条目。`ledger_sync=pending` 时先查原 article_id/request_id 和云记录，不能 PUT receipt 或改成功状态，更不能换 ID 重建；按共享交付规则补记。公开仓库只放规则和匿名示例。分别报告内容审稿、图片准备、保存、服务端核验、手机预览和待本人审核，不把某一项通过概括成全部完成。

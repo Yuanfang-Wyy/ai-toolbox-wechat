@@ -3,7 +3,7 @@ name: wechat-visual
 description: 为《AI顺手工具箱》规划和制作正文配图、示意图与封面，修复图文位置、手机可读性及裁切问题；区分真实截图与编辑示意，不默认上传或改微信草稿。
 metadata:
   owner: wangyuyang
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # 公众号视觉制作
@@ -33,4 +33,4 @@ metadata:
 
 ## 交接
 
-沿用现有 `packet.json`、`visual_plan`、`image_ledger` 和 `visual_reason`，交付图片文件、图注、来源及检查范围。图片准备、图片可传输、正文已保存和微信手机预览是分开的状态，由共享台账关联同一文章版本；本 Skill 不替代内容审稿与草稿交付，不调用发表。
+沿用现有 `packet.json`、`visual_plan`、`image_ledger` 和 `visual_reason`，交付图片文件、图注、来源及检查范围。图片准备、图片可传输、正文已保存和微信手机预览是分开的状态，由同一云台账关联正文版本；获授权登记检查时使用当前 revision 及绑定 content_sha256 的 review，不能写远端成功、手机通过或本人批准；本 Skill 不替代内容审稿与草稿交付，不调用发表。

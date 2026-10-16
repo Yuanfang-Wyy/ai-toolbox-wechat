@@ -3,7 +3,7 @@ name: ai-toolbox-wechat
 description: 《AI顺手工具箱》的统一入口：按任务调用选题研究、视觉制作和草稿交付，保留写作、审稿与反馈；共享台账和核验口径，仅存草稿供本人审核发表。
 metadata:
   owner: wangyuyang
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # AI顺手工具箱总入口
@@ -14,7 +14,7 @@ metadata:
 
 - 本 Skill 只准备、创建、读取和更新草稿。正式发表、群发、定时发表、排队发表均由用户本人在微信后台审核后操作。
 - 即使用户说“可以了”“审核通过”“发出去”，也不调用发表接口；解释草稿已准备，交由本人发表。审核通过不转化成后台自动发表权限。
-- 只使用现有“AI顺手工具箱”连接的状态、列表、读取、创建和更新草稿能力；MCP 逻辑名为 `connection_status`、`list_drafts`、`read_draft`、`create_draft`、`update_draft`，已授权 REST/CLI 按交付说明映射实际操作。不调用其他 Skill 的 publish/freepublish/mass/send，不另建发布接口或读取 AppSecret。
+- 只使用现有“AI顺手工具箱”连接的状态、草稿及私有云台账能力；MCP 逻辑名为 `connection_status`、`list_drafts`、`read_draft`、`create_draft`、`update_draft`、`list_workflow_entries`、`read_workflow_entry`、`save_workflow_entry`，已授权 REST/CLI 按交付说明映射实际操作。不调用其他 Skill 的 publish/freepublish/mass/send，不另建发布接口或读取 AppSecret。
 - 检查连接返回的 `publishing_enabled` 必须为 `false`。状态不明确或为 true 时暂停外部写入；继续本地写稿与检查。
 - 创建或修改草稿需要当前任务已授权。单独选题、审稿、盘点、查看草稿默认只读；不能因为加载本 Skill 就上传。
 
@@ -29,7 +29,7 @@ metadata:
 - 用户提供阅读数据或要求复盘：读 [反馈与改进](references/feedback.md)。不自动索取或抓取后台数据。
 - 查明来源与组合方式：读 [来源记录](references/provenance.md)。
 
-专项 Skill 不在目标环境或 Muse 只能读聚合文档时，按同一公开包中的对应章节完成可用部分；规则可读不代表有研究、出图、私有台账或微信权限。拿不到同一台账或工具时交回 packet，不另建权威记录或重复 create。
+专项 Skill 不在目标环境或 Muse 只能读聚合文档时，按同一公开包中的对应章节完成可用部分；规则可读不代表有研究、出图、私有台账或微信权限。云台账经现有授权连接访问，不依赖 Mac 开机；拿不到同一台账或工具时交回 packet，不另建权威记录或重复 create。
 
 ## 工作方式
 
@@ -38,12 +38,12 @@ metadata:
 3. 先判断已有材料是一个想法、多份来源、半篇稿、大纲还是待修稿，再按编辑标准组织。单工具介绍优先用“工具名＋具体用途或经核实的特色”拟简短标题；流程与对比文章可从任务切入。正文默认比以往同类长稿减少约三分之一，保留完整成果、关键步骤和必要条件。不固定开头、标点、章节数或结尾。
 4. 按视觉标准先安排必要图位，审查实际可带走的提示词、流程、模板或附件；长操作稿零配图时说明取舍。突出结论、关键动作与必要前提，不固定图片或加粗配额。真实截图来自操作记录；编辑示例与流程示意明确标注。核查图确实进入预览，封面审核与正文阅读分开呈现。
 5. 运行 `scripts/preflight.py check --packet <packet.json> --content-only` 做本地检查。脚本检查文件和参数，不能代替事实、版权、成果可用性与手机预览。加 `--verify-media` 时，即使内容有错误也独立检查有效图片地址；检查失败仍禁止生成投递参数。图片写入前按交付说明做一次 MIME、文件签名与大小核验。
-6. 获授权写草稿时交给唯一交付 Agent 串行执行。按 [草稿交付](references/delivery.md) 先读后改、固定请求号、核对回执，并把证据写回同一私有台账；结果交给用户审核。
+6. 获授权写草稿时交给唯一交付 Agent 串行执行。按 [草稿交付](references/delivery.md) 先读后改、固定请求号、核对回执，并核对服务自动写回的同一云台账；客户端只合并编辑准备字段；结果交给用户审核。
 
 ## 交付说明
 
 按统一流程分别报告内容审核、媒体检查、远端交付、正文核验、手机预览和本人审核。与本次版本关联的 created/updated/existing 且 verified=true 的保存回执，可确认服务端远端正文核验；不要求 Agent 再取得微信全文。它不证明手机排版或本人已审；succeeded、项目 Markdown 和 approved 字段不能替代对应证据。
 
-本 Skill 不新增模型 API、安装依赖或发表权限。脚本只用 Python 标准库，默认离线；仅加 `--verify-media` 时读取正文中的公开 HTTPS 图片，不读取凭证或提交草稿。连接不可用时保留本地成果。
+本 Skill 不新增模型 API、安装依赖或发表权限。云台账使用既有鉴权的 REST/MCP，记录不进入公开仓库；Muse 不必执行本地脚本。脚本只用 Python 标准库，默认离线；仅加 `--verify-media` 时读取正文中的公开 HTTPS 图片。旧本地台账在 cloud 模式拒绝写入，仅作备份；连接不可用时保留待同步成果，不开启第二主库。
 
 本机 Skill 更新不会自动同步到 Dot 或改变云端工具 schema。只有目标 Agent 确实加载了这些规则，才能按新方法工作；封面预览或 HTML 成果不代表微信封面、排版已经更新。

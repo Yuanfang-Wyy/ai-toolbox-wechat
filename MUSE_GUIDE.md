@@ -1,6 +1,6 @@
 # AI顺手工具箱：Muse 完整阅读版
 
-版本：**1.4.0**。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。首次核对本页版本，后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。
+版本：**1.5.0**。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。首次核对本页版本，后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。
 
 ## 导航
 
@@ -40,7 +40,7 @@
 
 - 本 Skill 只准备、创建、读取和更新草稿。正式发表、群发、定时发表、排队发表均由用户本人在微信后台审核后操作。
 - 即使用户说“可以了”“审核通过”“发出去”，也不调用发表接口；解释草稿已准备，交由本人发表。审核通过不转化成后台自动发表权限。
-- 只使用现有“AI顺手工具箱”连接的状态、列表、读取、创建和更新草稿能力；MCP 逻辑名为 `connection_status`、`list_drafts`、`read_draft`、`create_draft`、`update_draft`，已授权 REST/CLI 按交付说明映射实际操作。不调用其他 Skill 的 publish/freepublish/mass/send，不另建发布接口或读取 AppSecret。
+- 只使用现有“AI顺手工具箱”连接的状态、草稿及私有云台账能力；MCP 逻辑名为 `connection_status`、`list_drafts`、`read_draft`、`create_draft`、`update_draft`、`list_workflow_entries`、`read_workflow_entry`、`save_workflow_entry`，已授权 REST/CLI 按交付说明映射实际操作。不调用其他 Skill 的 publish/freepublish/mass/send，不另建发布接口或读取 AppSecret。
 - 检查连接返回的 `publishing_enabled` 必须为 `false`。状态不明确或为 true 时暂停外部写入；继续本地写稿与检查。
 - 创建或修改草稿需要当前任务已授权。单独选题、审稿、盘点、查看草稿默认只读；不能因为加载本 Skill 就上传。
 
@@ -55,7 +55,7 @@
 - 用户提供阅读数据或要求复盘：读 [反馈与改进](#ref-feedback)。不自动索取或抓取后台数据。
 - 查明来源与组合方式：读 [来源记录](#ref-provenance)。
 
-专项 Skill 不在目标环境或 Muse 只能读聚合文档时，按同一公开包中的对应章节完成可用部分；规则可读不代表有研究、出图、私有台账或微信权限。拿不到同一台账或工具时交回 packet，不另建权威记录或重复 create。
+专项 Skill 不在目标环境或 Muse 只能读聚合文档时，按同一公开包中的对应章节完成可用部分；规则可读不代表有研究、出图、私有台账或微信权限。云台账经现有授权连接访问，不依赖 Mac 开机；拿不到同一台账或工具时交回 packet，不另建权威记录或重复 create。
 
 ## 工作方式
 
@@ -64,13 +64,13 @@
 3. 先判断已有材料是一个想法、多份来源、半篇稿、大纲还是待修稿，再按编辑标准组织。单工具介绍优先用“工具名＋具体用途或经核实的特色”拟简短标题；流程与对比文章可从任务切入。正文默认比以往同类长稿减少约三分之一，保留完整成果、关键步骤和必要条件。不固定开头、标点、章节数或结尾。
 4. 按视觉标准先安排必要图位，审查实际可带走的提示词、流程、模板或附件；长操作稿零配图时说明取舍。突出结论、关键动作与必要前提，不固定图片或加粗配额。真实截图来自操作记录；编辑示例与流程示意明确标注。核查图确实进入预览，封面审核与正文阅读分开呈现。
 5. 运行 `scripts/preflight.py check --packet <packet.json> --content-only` 做本地检查。脚本检查文件和参数，不能代替事实、版权、成果可用性与手机预览。加 `--verify-media` 时，即使内容有错误也独立检查有效图片地址；检查失败仍禁止生成投递参数。图片写入前按交付说明做一次 MIME、文件签名与大小核验。
-6. 获授权写草稿时交给唯一交付 Agent 串行执行。按 [草稿交付](#ref-delivery) 先读后改、固定请求号、核对回执，并把证据写回同一私有台账；结果交给用户审核。
+6. 获授权写草稿时交给唯一交付 Agent 串行执行。按 [草稿交付](#ref-delivery) 先读后改、固定请求号、核对回执，并核对服务自动写回的同一云台账；客户端只合并编辑准备字段；结果交给用户审核。
 
 ## 交付说明
 
 按统一流程分别报告内容审核、媒体检查、远端交付、正文核验、手机预览和本人审核。与本次版本关联的 created/updated/existing 且 verified=true 的保存回执，可确认服务端远端正文核验；不要求 Agent 再取得微信全文。它不证明手机排版或本人已审；succeeded、项目 Markdown 和 approved 字段不能替代对应证据。
 
-本 Skill 不新增模型 API、安装依赖或发表权限。脚本只用 Python 标准库，默认离线；仅加 `--verify-media` 时读取正文中的公开 HTTPS 图片，不读取凭证或提交草稿。连接不可用时保留本地成果。
+本 Skill 不新增模型 API、安装依赖或发表权限。云台账使用既有鉴权的 REST/MCP，记录不进入公开仓库；Muse 不必执行本地脚本。脚本只用 Python 标准库，默认离线；仅加 `--verify-media` 时读取正文中的公开 HTTPS 图片。旧本地台账在 cloud 模式拒绝写入，仅作备份；连接不可用时保留待同步成果，不开启第二主库。
 
 本机 Skill 更新不会自动同步到 Dot 或改变云端工具 schema。只有目标 Agent 确实加载了这些规则，才能按新方法工作；封面预览或 HTML 成果不代表微信封面、排版已经更新。
 
@@ -90,7 +90,7 @@
 
 ## 研究与筛选
 
-1. 读取当前授权可访问的私有台账、已有文章与本批候选，按“工具官方标识＋读者具体任务”比较 `article_key`。同时比较已发表、草稿中、待研究与已否决记录；不能仅靠标题不同认定新题。只读任务不写台账，未覆盖的历史明确记录范围。
+1. 通过 `list_workflow_entries` 分页查询同一云台账、已有文章与本批候选，按“工具官方标识＋读者具体任务”比较 `article_key`。同时比较已发表、草稿中、待研究与已否决记录；不能仅靠标题不同认定新题。只读任务不写台账，未覆盖的历史明确记录范围。
 2. 用 X、GitHub 或其他渠道发现线索，再回到官方 README、文档、版本记录、许可及下载入口核查。记录来源链接和核查日期；帖子推荐量、星数是发现信号，不能证明使用人数、效果或“最好用”。检索使用当前可用且已获授权的能力，不新增登录、依赖、模型调用或付费服务。
 3. 说明读者任务、现有做法、改善哪一步、设置/学习/费用成本与证据缺口，给出“写、收窄、待验证或放弃”的理由。系统、硬件、账号、代码能力和数据去向会改变适用人群时，放在建议之前。
 4. 提供可支撑的写作方向与一个具体示例构想，选用现有 `writing_mode`；官方文档、源码检查和实测分别标明。没有操作记录不建议写成实测教程，不编造效果数字、亲测口吻或截图。
@@ -99,7 +99,7 @@
 
 沿用现有 `packet.json` 与字段，不创建第二套题卡 schema。将研究放入 `topic_brief`、`source_urls`、`evidence_level` 和 `editorial_note`，以稳定 `article_key` 对应私有台账；标题角度、建议示例和缺图记录用现有编辑字段。多个候选可以用表格供用户选择，进入写作的候选再补齐交接包。
 
-研究结论与“已成稿、已审稿、已存微信”分别汇报。研究阶段不生成草稿投递请求，不调用创建、更新或发表；需要继续写作时交回总入口，已明确要求完整成品的任务继续完成后续已授权环节。
+获授权记录选题时，按共享流程先读云台账 revision，再以 patch 保存 `topic_record`；只读研究不写。研究结论与“已成稿、已审稿、已存微信”分别汇报。研究阶段不生成草稿投递请求，不调用创建、更新或发表；需要继续写作时交回总入口，已明确要求完整成品的任务继续完成后续已授权环节。
 
 
 <a id="skill-wechat-visual"></a>
@@ -132,7 +132,7 @@
 
 ## 交接
 
-沿用现有 `packet.json`、`visual_plan`、`image_ledger` 和 `visual_reason`，交付图片文件、图注、来源及检查范围。图片准备、图片可传输、正文已保存和微信手机预览是分开的状态，由共享台账关联同一文章版本；本 Skill 不替代内容审稿与草稿交付，不调用发表。
+沿用现有 `packet.json`、`visual_plan`、`image_ledger` 和 `visual_reason`，交付图片文件、图注、来源及检查范围。图片准备、图片可传输、正文已保存和微信手机预览是分开的状态，由同一云台账关联正文版本；获授权登记检查时使用当前 revision 及绑定 content_sha256 的 review，不能写远端成功、手机通过或本人批准；本 Skill 不替代内容审稿与草稿交付，不调用发表。
 
 
 <a id="skill-wechat-draft-delivery"></a>
@@ -151,9 +151,9 @@
 ## 授权与准备
 
 - 先确认当前任务已授权创建或更新草稿。查看、盘点、审稿和连接检查只读；不能因加载 Skill 自动上传。正式发表、群发和定时发表均交用户本人在后台操作。
-- 按现有 schema 发现状态、列表、读取、创建和更新五项逻辑能力，确认 `publishing_enabled=false`。能力或发表边界不明时暂停写入，继续本地检查。
-- 查私有台账与原任务，确认 `article_key`、正文指纹、审过的版本和原 `article_id`；项目索引不是完整微信草稿箱。更新必须先读取有效远端绑定及最新 `expected_snapshot`，不根据 `approved` 字段猜测可否更新。
-- 沿用 `packet.json` 运行总入口 `scripts/preflight.py` 的 `check` 和必要的 `prepare --verify-media`。固定 `request_id`、请求参数与指纹，冻结交付版本；同一请求不得替换内容，也不覆盖已存在的不同参数文件。
+- 按现有 schema 发现八项逻辑能力：状态、草稿列表/读取/创建/更新，以及云台账列表/读取/合并准备字段，确认 `publishing_enabled=false`。能力或发表边界不明时暂停写入，继续本地检查。
+- 查同一云台账与原任务，确认 `article_key`、正文指纹、审过的版本和原 `article_id`；项目索引不是完整微信草稿箱。更新必须先读取有效远端绑定及最新 `expected_snapshot`，不根据 `approved` 字段猜测可否更新。
+- 沿用 `packet.json` 运行总入口 `scripts/preflight.py` 的 `check` 和必要的 `prepare --verify-media`。固定 `request_id`、请求参数与指纹，冻结交付版本，并以当前云台账 revision 保存 request_id、payload_sha256、content_sha256 与 prepared；prepared 不是微信成功回执。同一请求不得替换内容，也不覆盖已存在的不同参数文件。
 
 ## 串行写入与核验
 
@@ -172,7 +172,7 @@
 
 恢复使用 [交付规则](#ref-delivery) 的串行流程：先核对原任务，只对确认允许重试的请求沿用原号和冻结参数；再次额度错误或结果不明时停止受影响处理。实际接口限制未查清前，不把所有 `approved` 草稿说成只能后台修改。
 
-交付回执写入私有工作目录并汇总共享台账；公开仓库只放规则和匿名示例。分别报告内容审稿、图片准备、保存、服务端核验、手机预览和待本人审核，不把某一项通过概括成全部完成。
+真实保存回执由云端服务自动录入台账；客户端保留原始回执，核对 `ledger_sync.status=recorded` 后再读同一条目。`ledger_sync=pending` 时先查原 article_id/request_id 和云记录，不能 PUT receipt 或改成功状态，更不能换 ID 重建；按共享交付规则补记。公开仓库只放规则和匿名示例。分别报告内容审稿、图片准备、保存、服务端核验、手机预览和待本人审核，不把某一项通过概括成全部完成。
 
 
 <a id="ref-editorial"></a>
@@ -347,11 +347,13 @@
 
 ## 去重与工作目录
 
-统筹方沿用同一 `article_key` 和私有台账，按统一流程核对工具、任务与场景；标题不同不能自动成为新题。
+统筹方沿用同一 `article_key` 和云台账，按统一流程核对工具、任务与场景；标题不同不能自动成为新题。
 
-每篇独立目录，其他 Agent 不改正在交付的正文；多个 Agent 不同时修改同一微信草稿。不同机器的 Agent 也必须经过同一个交付入口与台账，不能靠各自的本地锁保证全局去重。
+每篇独立目录，其他 Agent 不改正在交付的正文；多个 Agent 不同时修改同一微信草稿。不同机器的 Agent 也必须经过同一个交付入口与云台账，不能靠各自的本地锁保证全局去重。Mac 关机后仍经已有 REST/MCP 连接工作，不依赖本机 JSON。准备记录用先读 revision 再合并的乐观并发控制；409 时重新比较，不把不同编辑者的记录覆盖掉。
 
-先查同一台账与可访问项目索引，再决定 create/update。研究、视觉、写作 Agent 不向各自新建的记录分配远端身份；拿不到同一私有台账或工具时只交包，交付者对账后再操作。公开包、Muse 聚合阅读版和 GitHub 不包含生产台账、稿件或回执。
+先通过 list_workflow_entries 分页查同一云台账与可访问项目索引，再决定 create/update。研究、视觉、写作 Agent 不向各自新建的记录分配远端身份；拿不到同一私有台账或工具时只交包，交付者对账后再操作。公开包、Muse 聚合阅读版和 GitHub 不包含生产台账、稿件或回执。
+
+选题、写作和视觉 Agent 只能合并获授权的准备字段、版本和实际审核证据，不可写 receipt/history/远端成功或本人批准。微信服务保存后自动记回执；交付者核对 ledger_sync，pending 时先查原ID补记，不能换号重建。
 
 新文已创建后，任何修订都通过原 article_id 更新；同一次交付重试保持原请求号，确认上次结果后才为内容修订分配新的 delivery_key/request_id。已准备但尚未确认的请求冻结正文和参数。
 
@@ -552,7 +554,7 @@ python3 scripts/preview_cover.py --image assets/cover-layout.svg --output /tmp/c
 
 ## 当前连接
 
-优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。当前只有草稿能力，服务器禁用正文模型调用与正式发表。
+优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.yuanfangwyy.xyz/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
 
 | 逻辑能力 | 参数与边界 | 当前私有 REST 对应操作 |
 |---|---|---|
@@ -561,12 +563,15 @@ python3 scripts/preview_cover.py --image assets/cover-layout.svg --output /tmp/c
 | read_draft | article_id；返回项目 markdown、sources；远端可读时返回 remote_title、image_count 和 expected_snapshot | GET `/api/drafts/v1/drafts/{article_id}` |
 | create_draft | title、markdown、source_urls、request_id；只存草稿 | POST `/api/drafts/v1/drafts` |
 | update_draft | 上述字段 + article_id、expected_snapshot；先读后改，保留旧正文 | PUT `/api/drafts/v1/drafts/{article_id}`，article_id 在路径中 |
+| list_workflow_entries | query、limit、offset；当前云台账分页查重，不调用微信 | GET `/api/drafts/v1/workflow` |
+| read_workflow_entry | article_key；完整记录与 revision | GET `/api/drafts/v1/workflow/{article_key}` |
+| save_workflow_entry | record 本次变更字段、expected_revision；只登记准备与审核，不接收客户端回执 | PUT `/api/drafts/v1/workflow/{article_key}` |
 
 映射仅使用当前已有且已授权的入口，不扩展到发表、删除或账户权限，不安装或授权新的投递服务。
 
 ## 保存前
 
-1. 确认本次允许写草稿，在同一私有台账核对 article_key、任务、正文版本和原 article_id，由唯一交付者串行操作。文章质量通过，来源与图片真实可用。标题最长 32 字；正文 80—14000 字；source_urls 最多 20 条 HTTPS。
+1. 确认本次允许写草稿，在同一云台账核对 article_key、任务、正文版本和原 article_id，由唯一交付者串行操作。文章质量通过，来源与图片真实可用。标题最长 32 字；正文 80—14000 字；source_urls 最多 20 条 HTTPS。
 2. 正文不得带知识库 generated 标记、个人思考/计划区、frontmatter、占位内容或主动 HTML。正文图片最多 15 张，按视觉标准检查格式和来源。
 3. 已有草稿必须成功 read_draft，保留项目原文与 expected_snapshot。备份正文可用于本地改稿，不能代替最新微信快照。
 4. 准备交接包并运行离线 check；提交前运行一次带图片验证的 prepare，固定 request_id、payload 指纹和工具参数：
@@ -579,6 +584,8 @@ python3 scripts/preflight.py prepare --packet /path/to/packet.json --output /pat
 脚本路径按本 Skill 所在目录解析。不加 `--verify-media` 时离线；加上时仅 GET 正文公开图片，检查响应 MIME、签名与 1,000,000 字节限制。返回 `media_verified=true` 也不代表图片版权、可读性或微信上传成功。无图无需联网。不要为了参数准备重复下载已经核验的图片。
 
 已有 request.json 与不同 payload 冲突时拒绝覆盖。将 request.json 的 tool 与 arguments 交给宿主调用；脚本不直接提交。参数准备不代表本任务已授权上传，调用前仍核对当前对话。
+
+准备完成后，先读云台账当前 revision，再保存本次正文指纹、绑定该指纹的实际审核 review、稳定 request_id、payload_sha256、delivery_key 与 prepared 元数据。字段及哈希算法见 [云台账契约](#ref-workflow)。不能把整个 request.json 当作 record；原草稿五项参数 schema 未变，article_key/review/states 不塞进 create_draft 或 update_draft。
 
 ### 缺少快照或接口限制
 
@@ -597,11 +604,17 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 1. 与本次请求/版本明确关联的成功保存回执含 verified=true。当前已检查服务是在保存后读微信草稿，核对正文文本、标题、封面和图片数量后才返回该标记；不要求 Agent 再取得微信全文。
 2. 现有授权连接直接取得远端正文，与本次提交预期一致，并保存可对账的证据。
 
-把原始回执放入本篇 receipt.json，连同固定 request.json 录入同一私有台账。满足任一路径可报告“已保存，服务端远端正文核验通过，待本人审核”，并记录具体路径。核验不包括 CSS、像素级显示、图片内容或手机排版；手机预览和本人审核分别记录。
+把原始回执和固定 request.json 保留在私有工作目录。当前云服务自动将真实交付结果写入同一云台账，核对返回 ledger_sync.status=recorded 后读取原 article_key，检查 request_id、正文指纹、article_id 与状态；客户端不手工 PUT receipt 或远端成功状态。满足任一路径可报告“已保存，服务端远端正文核验通过，待本人审核”，并记录具体路径。核验不包括 CSS、像素级显示、图片内容或手机排版；手机预览和本人审核分别记录。
 
 保存后读回可能失败：如果已有直接创建成功回执，或独立、明确关联本请求的后端成功任务、media_id 存在与正文指纹匹配，可报告“创建已确认，读回未核验”，保留原 article_id。缺少这些凭据则标为 uncertain。索引 has_wechat_draft=true 仅是线索，不能单独证明成功；也不能把批准字段代替本人审核。
 
 当前 read_draft 的 markdown 来自项目记录。approved、项目正文已改好、remote_title 相同、图片数一致或 snapshot 变化，都不能单独证明微信正文已经更新。单独 succeeded 只支持保存成功口径，不能替代 verified 或真实远端正文一致证据。失败后读到新版项目 Markdown 不补足这项证据，不追溯给历史无证据的稿件补标 verified；已有明确 verified 回执的稿件也不因没有向 Agent 暴露全文而降级。
+
+### 微信已保存而台账待补记
+
+`ledger_sync.status=pending` 只表示台账同步未完成。若原始回执已是 created/updated/existing 且 verified=true，保留“保存及服务端正文核验已确认，台账待补记”的口径；不能把准备记录升级为成功，也不能撤销已取得的真实回执。
+
+先用原 article_key/request_id 查询云台账，再 read_draft 原 article_id 核对身份与可读性。若微信正处45009，先停微信读取，可查不触微信的云台账和项目索引。补记只能由持有真实服务回执的现有服务路径执行；没有独立回执上传接口，客户端不能构造 receipt 或伪造 verified。确认原微信保存已成功、服务允许恢复且无远端冲突后，才可由唯一交付者使用原 request_id 与完全相同冻结 arguments 做一次有界幂等恢复，让服务重新对账并录入回执。uncertain/submitting/结果不明时不可把它当普通重试；仍 pending 或冲突则保留证据、暂停补记。不换请求号、不更换内容、不重新 create 另一篇。
 
 ## 停止条件
 
@@ -678,6 +691,10 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 
 本版吸收 Muse 对核验口径的实战反馈：本次请求与版本关联的 created/updated/existing 加 verified=true 回执，可作为服务端远端正文核验，无须再向 Agent 暴露微信全文；与手机排版和本人审核分开记录。快照条件按已检查的本项目源码说明，有效远端绑定与微信读取成功均为前提，不把 approved 或 40007 推断成通用更新锁或可重建许可。拆分与离线试跑不新增微信接口、正文模型调用或发表权限。
 
+## v1.5.0 云台账适配
+
+同一授权 REST/MCP 服务增加云台账列表、读取及 revision 合并准备记录三项能力；私有台账不进入公开包。真实草稿保存回执由服务端内部写回，客户端不能声明远端已核验或本人已审。原五项草稿参数保持不变；Mac 关机后服务仍可用。接口/持久性实测与 Muse 应用内完整流程验收分别记录，不把规则同步当成应用验收。
+
 
 <a id="ref-workflow"></a>
 
@@ -689,14 +706,14 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 
 - 统筹方按“读者要完成的任务 + 工具官方标识”分配稳定 `article_key`。题目改名不换标识；同一工具的不同任务可分别成题，不同工具解决同一任务要先比较角度是否重复。
 - 查重覆盖已发表、已有草稿、待研究和已否决；同时看工具、任务和场景，不只做标题精确匹配。已否决记录保留理由，出现新版本或新证据可以重新评估。
-- 本机总入口若有私有 `runtime.json`，先读取其中 ledger_path；该配置不进入公开包，也不代表其他机器已共享。没有此配置时由当前任务交接提供同一台账位置。
-- 总控先确定当前任务使用的私有台账路径，所有 Agent 的交接均引用该路径或同一授权服务记录。优先复用已有台账；需要初始化时由总控指定，不能每个专项静默各建一份。目录不公开、凭证不入包。
+- v1.5.0 以既有授权服务的私有云台账为唯一权威记录，REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，或使用同服务的 MCP 台账工具。台账在云端持久保存，Muse 与 Codex 共用，不要求 Mac 开机或共享本地文件。正式使用先检查 `api_version=1.1.0`、`workflow_enabled=true`、`workflow_storage=cloud` 与 `publishing_enabled=false`。
+- 本机私有 `runtime.json` 标记 `ledger_mode=cloud`；其中原 ledger_path 仅指只读备份。配置、旧台账、稿件和回执均不进入公开包。没有配置的 Muse 也可用已授权连接按下节访问云台账，无需新装依赖、读取服务器文件或粘贴密钥。云连接不可用时只保留待同步 packet，不回退成另一份生产主库。
 - 台账关联 `article_key`、负责人、标题与任务、`article_id`、正文版本/指纹、`delivery_key`、`request_id`、各环节状态及证据/错误。版本指纹为 UTF-8 `title + "\n" + markdown` 的 SHA-256；请求 payload 指纹另行保存。保留历史回执，不用新索引覆盖已确认事实。
 - 云端项目索引用于对账和定位已有 `article_id`，不是微信完整草稿列表。没有条目、远端读取失败或 `has_wechat_draft=false` 都不能单独证明微信没有稿件，也不授权重新创建。
 
 索引覆盖范围写明来源、采集时间与是否局部；例如最近 50 条只能标为 partial，不能称全历史。`index_observation` 保留项目状态与 `has_wechat_draft` 观察值，不自动映射为内容已审、正文已核验或本人审核。
 
-现有 `packet.json` 继续作为交接包，不为拆分要求另造一组必填字段。正文版本指纹由台账脚本计算，请求参数与 payload 指纹由现有预检生成；台账脚本只组织记录和证据，不获得外部写入权限，也不证明网页、图片或草稿已经验证。
+现有 `packet.json` 继续作为交接包，不为拆分要求另造一组必填字段。正文指纹是 UTF-8 `title + "\n" + markdown` 的 SHA-256。payload 指纹是实际 MCP arguments 的 JSON（ensure_ascii=false、键排序、分隔符为逗号/冒号）的 SHA-256，更新时包括 article_id 和 expected_snapshot；REST 的 article_id 虽在路径，计算时仍并入同一 arguments。请求号沿用现有 preflight 或冻结请求，不为方便同步换号。prepared 只证明准备元数据已登记，不能证明微信保存。
 
 ## 分开记录结果
 
@@ -709,7 +726,7 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 | 手机预览 | 确实打开本次草稿手机预览，检查正文、图片、字号、留白和裁切并记录结果 | 服务端 verified=true、HTML 预览或结构检查 |
 | 本人审核 | 用户本人明确审核该版本 | Agent 审稿、项目 approved、自动流转 |
 
-台账分开保存：`editorial`（pending/reviewed/blocked）、`media`（pending/verified/blocked/not_required）、`delivery`（not_submitted/prepared/created/updated/existing/uncertain/quota_blocked/conflict）、`remote_verification`（pending/verified/failed）、`mobile_preview`（pending/passed/needs_fix）及 `owner_review`（pending/approved/rejected）。后两项只能按真实预览或本人决定更新，不由本地预检或 Agent 审稿推定。
+台账分开保存：`editorial`（pending/reviewed/blocked）、`media`（pending/verified/blocked/not_required）、`delivery`（not_submitted/prepared/created/updated/existing/uncertain/quota_blocked/conflict）、`remote_verification`（pending/verified/failed）、`mobile_preview`（pending/passed/needs_fix）及 `owner_review`（pending/approved/rejected）。后两项只能依据真实预览或本人决定确认，不由本地预检或 Agent 审稿推定。当前云台账外部写接口不开放提升这两项状态；私有检查记录可保留实际证据，不能因接口限制伪造通过。
 
 服务端 `verified=true` 路径足以确认远端正文核验，无须把微信全文再暴露给写作 Agent。当前已检查服务会比较正文文本、标题、封面与图片数量；不验证 CSS、像素级显示、图片内容或手机排版。回执字段与当前接口能力仍应实际核对，不能因为历史服务曾验证就给无标记的成功结果补写 verified。
 
@@ -725,15 +742,60 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 
 研究、写作、视觉和审稿 Agent 交 packet 与证据给总控；只有当前账号指定交付者创建/更新微信草稿，串行操作。跨机器或 Muse 拿不到同一私有台账、回执或工具时，交 packet 等总控对账，不自建第二份权威台账、不直接重复 create。离线演练只写隔离的试跑台账，明确标为模拟，不并入生产记录。
 
-总入口的标准库脚本 `scripts/workflow_ledger.py` 供总控离线操作，使用前查看实际 `--help`：
+## 云台账接口与交接
 
-```bash
-python3 scripts/workflow_ledger.py import-index --ledger /private/path/ledger.json --input /private/path/project-index.json
-python3 scripts/workflow_ledger.py record-topic --ledger /private/path/ledger.json --packet /path/to/packet.json --decision research
-python3 scripts/workflow_ledger.py reconcile --ledger /private/path/ledger.json --packet /path/to/packet.json
-python3 scripts/workflow_ledger.py record-review --ledger /private/path/ledger.json --packet /path/to/packet.json --review /path/to/review.json
-python3 scripts/workflow_ledger.py record-receipt --ledger /private/path/ledger.json --packet /path/to/packet.json --request /path/to/request.json --receipt /path/to/receipt.json
-python3 scripts/workflow_ledger.py list --ledger /private/path/ledger.json
+台账接口与原五项草稿能力使用同一已有授权：REST 的安全凭据存储注入 `X-API-Key`，MCP 沿用现有 OAuth 和 drafts:read/drafts:write scopes。只发现并调用现有连接，不把密钥写入提示词、正文、公包或日志。下面基址均指现有服务，不能拿公众号 AppSecret 替代连接密钥。
+
+| MCP 逻辑能力 | REST 路径（相对基址） | 参数与结果 |
+|---|---|---|
+| list_workflow_entries | GET `/workflow?query=&limit=50&offset=0` | query 最长100，limit 1–50，offset 非负；返回 articles、total、limit、offset、ledger_version，可能带 index_coverage |
+| read_workflow_entry | GET `/workflow/{article_key}` | 返回当前完整记录和 revision；404 workflow_not_found 表示台账未录入，不能据此推断微信没有草稿 |
+| save_workflow_entry | PUT `/workflow/{article_key}` | 请求仅 `{record, expected_revision}`；record 是本次字段变更，返回合并后的记录和新 revision；新条目用 expected_revision=0 |
+
+article_key 为 1–160 个 ASCII 字符，首位字母或数字，后续可用字母、数字、冒号、点、下划线及连字符。已有 `legacy:UUID`、`request:UUID` 都是有效身份：先定位并沿用，不能为好看的命名另建具有同一 article_id 的条目。HTTP 路径按 URL 编码传递，不能拼接任意文件路径。
+
+**每次写入先读，使用返回的 revision。** `workflow_revision_conflict`、`workflow_identity_conflict`、`workflow_request_conflict` 或 `workflow_review_version_conflict` 返回409：保留本次 patch，重新读差异并合并，不强制覆盖、不盲改 expected_revision。校验或受保护状态返回422，修正文档/字段后再登记；不绕过规则。除用户授权本次保存外，不因加载 Skill 自动登记研究结果。
+
+### 正确的记录字段
+
+record 允许：`article_key`、`article_id`、`title`、`task`、`source_urls`、`owner`、`delivery_key`、`content_sha256`、`request_id`、`payload_sha256`、`topic_record`、`editorial_note`、`review`、`states`。一般不重复传路径 article_key；article_id 与 request_id 是规范小写 UUID，指纹为64位小写十六进制。来源为公开 HTTPS，无登录凭据或令牌查询参数。
+
+- `topic_record`：decision 为 write/research/defer/reject；可含 title、brief、source_urls、editorial_note、owner。brief 只含 audience、task、current_way、improvement、setup_cost、evidence。
+- `review`：必含 content_sha256 与非空 evidence，可含 editorial_review_passed（布尔）和 media_status（pending/verified/blocked/not_required）。证据须对应本次正文，不能用旧审核盖新版本。
+- 客户端 states 只能登记 editorial、media 的准备/审核结果，以及 delivery=not_submitted/prepared；reviewed 和媒体 verified/not_required 须有上述 review。prepared 须与 request_id、payload_sha256、content_sha256 一起登记。
+- remote_verification、mobile_preview、owner_review 外部仅允许 pending；客户端不能写 receipt、history、revision、updated_at 或成功交付状态，也不要把 GET 返回的整条记录原样 PUT。微信真实回执由服务端内部录入，客户端不制造通过证据。
+
+新选题登记的可复制请求体示例（先查重；新条目才用 revision 0）：
+
+```json
+{
+  "record": {
+    "title": "配音总要重录？先把旁白单独做好",
+    "task": "给软件教程制作可修改的中文旁白",
+    "source_urls": ["https://github.com/debpalash/VoiceStudio"],
+    "owner": "editor",
+    "topic_record": {
+      "decision": "research",
+      "brief": {
+        "audience": "需要做软件教程的内容创作者",
+        "task": "制作并修改中文旁白",
+        "current_way": "口播有错后整段重录",
+        "improvement": "先比较逐段生成与导出能力",
+        "setup_cost": "核查硬件、模型下载与授权条件",
+        "evidence": "先核对官方文档，不能称已实测"
+      }
+    }
+  },
+  "expected_revision": 0
+}
 ```
 
-`import-index` 只导入项目线索；`record-topic` 在尚无正文时记录写作、待研究、暂缓或否决判断（write/research/defer/reject），复用 packet 的 article_key、title、topic_brief 和来源；`reconcile` 登记、比对任务/身份/版本，不投递；`record-review` 记录已完成的 Agent 审核，review 须绑定 content_sha256，仅更新编辑和媒体状态；`record-receipt` 核对固定请求及已取得的回执。脚本不会联网、创建微信草稿或替 Agent/本人审稿，不标记本人审批。不能把示例私有路径作为默认多机共享目录。记录回执时，原始调用若未在响应内回显 request_id，由交付者依据同一工具调用记录补充关联；不猜测请求号，不改原始响应，并在内部证据说明关联方式。record-review 的 evidence 填实际检查记录位置。台账脚本按单写者使用，本地覆盖前检测变化并保留修订备份，不提供跨主机锁或共享服务。详细参数以随包脚本为准。
+正文定稿后，先 PATCH 式 PUT `content_sha256` 与绑定该指纹的 review，待真实检查完成才设 editorial_review_passed=true 和适用 media_status。再把实际冻结 request.json 的 request_id、payload_sha256、delivery_key 与 `states:{"delivery":"prepared"}` 登记到同一条目；每次沿用最新 revision。不能为了演示直接填写假指纹或假审核。
+
+保存后核对原始回执的 article_id、request_id、published=false、verified 和 ledger_sync。`ledger_sync.status=recorded` 后 GET 同一 article_key，确认版本与回执一致。`ledger_sync.status=pending` 不抹掉已取得的微信成功回执，也不意味着应重建草稿：先查询原 article_id/request_id 与云台账，按 [交付恢复](#ref-delivery) 由服务补记，客户端不能 PUT receipt。
+
+### 本机脚本与离线备份
+
+`scripts/workflow_ledger.py` 是旧本地台账工具，不能替代云接口。运行前读取总入口私有 runtime.json：cloud 模式下所有本地写命令（import-index、record-topic、reconcile、record-review、record-receipt）拒绝执行；`list` 只能查看明确标成非权威的旧备份。迁移、恢复与模拟需明确隔离并由总控处理，不把本地 JSON 双向同步成第二个主库。
+
+Muse 只需已有 REST/MCP 连接：读公开规则→查云台账→按当前 revision 记录研究/审核/准备→按既有草稿接口保存→核对服务回执与云记录。若没有脚本运行能力，按相同 preflight 标准人工检查并保留证据，不声称运行过本地脚本；图检、请求冻结和交付边界不因此省略。

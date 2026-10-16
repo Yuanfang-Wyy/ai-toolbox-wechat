@@ -4,7 +4,7 @@
 
 ## 当前连接
 
-优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。当前只有草稿能力，服务器禁用正文模型调用与正式发表。
+优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.yuanfangwyy.xyz/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
 
 | 逻辑能力 | 参数与边界 | 当前私有 REST 对应操作 |
 |---|---|---|
@@ -13,12 +13,15 @@
 | read_draft | article_id；返回项目 markdown、sources；远端可读时返回 remote_title、image_count 和 expected_snapshot | GET `/api/drafts/v1/drafts/{article_id}` |
 | create_draft | title、markdown、source_urls、request_id；只存草稿 | POST `/api/drafts/v1/drafts` |
 | update_draft | 上述字段 + article_id、expected_snapshot；先读后改，保留旧正文 | PUT `/api/drafts/v1/drafts/{article_id}`，article_id 在路径中 |
+| list_workflow_entries | query、limit、offset；当前云台账分页查重，不调用微信 | GET `/api/drafts/v1/workflow` |
+| read_workflow_entry | article_key；完整记录与 revision | GET `/api/drafts/v1/workflow/{article_key}` |
+| save_workflow_entry | record 本次变更字段、expected_revision；只登记准备与审核，不接收客户端回执 | PUT `/api/drafts/v1/workflow/{article_key}` |
 
 映射仅使用当前已有且已授权的入口，不扩展到发表、删除或账户权限，不安装或授权新的投递服务。
 
 ## 保存前
 
-1. 确认本次允许写草稿，在同一私有台账核对 article_key、任务、正文版本和原 article_id，由唯一交付者串行操作。文章质量通过，来源与图片真实可用。标题最长 32 字；正文 80—14000 字；source_urls 最多 20 条 HTTPS。
+1. 确认本次允许写草稿，在同一云台账核对 article_key、任务、正文版本和原 article_id，由唯一交付者串行操作。文章质量通过，来源与图片真实可用。标题最长 32 字；正文 80—14000 字；source_urls 最多 20 条 HTTPS。
 2. 正文不得带知识库 generated 标记、个人思考/计划区、frontmatter、占位内容或主动 HTML。正文图片最多 15 张，按视觉标准检查格式和来源。
 3. 已有草稿必须成功 read_draft，保留项目原文与 expected_snapshot。备份正文可用于本地改稿，不能代替最新微信快照。
 4. 准备交接包并运行离线 check；提交前运行一次带图片验证的 prepare，固定 request_id、payload 指纹和工具参数：
@@ -31,6 +34,8 @@ python3 scripts/preflight.py prepare --packet /path/to/packet.json --output /pat
 脚本路径按本 Skill 所在目录解析。不加 `--verify-media` 时离线；加上时仅 GET 正文公开图片，检查响应 MIME、签名与 1,000,000 字节限制。返回 `media_verified=true` 也不代表图片版权、可读性或微信上传成功。无图无需联网。不要为了参数准备重复下载已经核验的图片。
 
 已有 request.json 与不同 payload 冲突时拒绝覆盖。将 request.json 的 tool 与 arguments 交给宿主调用；脚本不直接提交。参数准备不代表本任务已授权上传，调用前仍核对当前对话。
+
+准备完成后，先读云台账当前 revision，再保存本次正文指纹、绑定该指纹的实际审核 review、稳定 request_id、payload_sha256、delivery_key 与 prepared 元数据。字段及哈希算法见 [云台账契约](workflow.md)。不能把整个 request.json 当作 record；原草稿五项参数 schema 未变，article_key/review/states 不塞进 create_draft 或 update_draft。
 
 ### 缺少快照或接口限制
 
@@ -49,11 +54,17 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 1. 与本次请求/版本明确关联的成功保存回执含 verified=true。当前已检查服务是在保存后读微信草稿，核对正文文本、标题、封面和图片数量后才返回该标记；不要求 Agent 再取得微信全文。
 2. 现有授权连接直接取得远端正文，与本次提交预期一致，并保存可对账的证据。
 
-把原始回执放入本篇 receipt.json，连同固定 request.json 录入同一私有台账。满足任一路径可报告“已保存，服务端远端正文核验通过，待本人审核”，并记录具体路径。核验不包括 CSS、像素级显示、图片内容或手机排版；手机预览和本人审核分别记录。
+把原始回执和固定 request.json 保留在私有工作目录。当前云服务自动将真实交付结果写入同一云台账，核对返回 ledger_sync.status=recorded 后读取原 article_key，检查 request_id、正文指纹、article_id 与状态；客户端不手工 PUT receipt 或远端成功状态。满足任一路径可报告“已保存，服务端远端正文核验通过，待本人审核”，并记录具体路径。核验不包括 CSS、像素级显示、图片内容或手机排版；手机预览和本人审核分别记录。
 
 保存后读回可能失败：如果已有直接创建成功回执，或独立、明确关联本请求的后端成功任务、media_id 存在与正文指纹匹配，可报告“创建已确认，读回未核验”，保留原 article_id。缺少这些凭据则标为 uncertain。索引 has_wechat_draft=true 仅是线索，不能单独证明成功；也不能把批准字段代替本人审核。
 
 当前 read_draft 的 markdown 来自项目记录。approved、项目正文已改好、remote_title 相同、图片数一致或 snapshot 变化，都不能单独证明微信正文已经更新。单独 succeeded 只支持保存成功口径，不能替代 verified 或真实远端正文一致证据。失败后读到新版项目 Markdown 不补足这项证据，不追溯给历史无证据的稿件补标 verified；已有明确 verified 回执的稿件也不因没有向 Agent 暴露全文而降级。
+
+### 微信已保存而台账待补记
+
+`ledger_sync.status=pending` 只表示台账同步未完成。若原始回执已是 created/updated/existing 且 verified=true，保留“保存及服务端正文核验已确认，台账待补记”的口径；不能把准备记录升级为成功，也不能撤销已取得的真实回执。
+
+先用原 article_key/request_id 查询云台账，再 read_draft 原 article_id 核对身份与可读性。若微信正处45009，先停微信读取，可查不触微信的云台账和项目索引。补记只能由持有真实服务回执的现有服务路径执行；没有独立回执上传接口，客户端不能构造 receipt 或伪造 verified。确认原微信保存已成功、服务允许恢复且无远端冲突后，才可由唯一交付者使用原 request_id 与完全相同冻结 arguments 做一次有界幂等恢复，让服务重新对账并录入回执。uncertain/submitting/结果不明时不可把它当普通重试；仍 pending 或冲突则保留证据、暂停补记。不换请求号、不更换内容、不重新 create 另一篇。
 
 ## 停止条件
 

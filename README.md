@@ -1,6 +1,6 @@
 # AI顺手工具箱 Skill 套件
 
-版本：**1.4.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
+版本：**1.5.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
 
 | Skill | 用途 |
 |---|---|
@@ -15,9 +15,9 @@
 
 可复制提示词：
 
-> 阅读本仓库 v1.4.0 的 MUSE_GUIDE.md，使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先查重，沿用原 article_key；使用总控指定的同一私有台账。没有台账或公众号工具时交付 packet 和本地成果，不自建第二套权威记录，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
+> 阅读本仓库 v1.5.0 的 MUSE_GUIDE.md，使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
 
-公开读取不等于实际安装、可执行 Python 或已有连接。Muse 没有同一私有台账时，把交接包交回总控对账；不要求公开台账、正文、回执或凭证。当前服务器仍只提供已有五项草稿能力，不提供新增台账 API，也不因本套件更新而自动部署。
+公开读取不等于已有连接。Muse 使用现有安全凭据存储配置的 REST 或已有 OAuth MCP，直接调用云台账与草稿能力，不需新增本地依赖或让 Mac 开机。REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，当前注册版本1.1.0；运行前读取 OpenAPI 与 connection_status，确认实际部署，不因读取 Skill 就假定工具已增加。密钥不进入提示词、公开文档或仓库，台账数据也不公开。字段与请求示例见统一流程。
 
 ## 安装到支持 Agent Skills 的运行时
 
@@ -25,13 +25,13 @@
 
 ## 台账与核验
 
-共享口径见 [workflow.md](skills/ai-toolbox-wechat/references/workflow.md)。继续使用现有 packet.json、文章标识和图片台账。私有总台账通过 `workflow_ledger.py` 对账并分别记录内容、媒体、交付、正文核验、手机预览及本人审核。项目索引只作线索，不能推定微信已保存、远端已核验或用户已批准。
+共享口径见 [workflow.md](skills/ai-toolbox-wechat/references/workflow.md)。继续使用现有 packet.json、文章标识和图片台账。私有总台账通过同一已授权 REST/MCP 云服务按 revision 合并，分别记录内容、媒体、交付、正文核验、手机预览及本人审核；客户端只能提交准备/实际审稿证据，真实保存回执由服务内部写回。项目索引只作线索，不能推定微信已保存、远端已核验或用户已批准。
 
 本次提交的 `verified=true` 成功回执可以作为服务端远端正文核验证据，不要求 Agent 再取得微信全文；手机视觉和本人审核另记。缺少快照不否定明确的历史核验回执，但下一次更新必须先取得有效新快照。所有发表由本人在微信后台操作。
 
 ## 离线工具与维护
 
-脚本只用 Python 3.9+ 标准库；在总入口 Skill 根目录运行。`preflight.py` 默认离线，只有 `--verify-media` 会读取正文公开 HTTPS 图片；`preview_cover.py` 只做本地裁切预览；`workflow_ledger.py` 不联网、不提交；本地台账是指定交付者的私有工作记录，不提供跨主机锁或自动同步。
+脚本只用 Python 3.9+ 标准库；在总入口 Skill 根目录运行。`preflight.py` 默认离线，只有 `--verify-media` 会读取正文公开 HTTPS 图片；`preview_cover.py` 只做本地裁切预览；`workflow_ledger.py` 不联网、不提交；cloud 模式拒绝本地写入，本地 JSON 仅为非权威只读备份，不与云端双向合并。Muse 无需执行这些脚本，可用已授权连接完成同等检查并如实记录证据，不能声称运行过本地脚本。
 
 维护者从四个同级本机 Skill 生成公开包：
 
