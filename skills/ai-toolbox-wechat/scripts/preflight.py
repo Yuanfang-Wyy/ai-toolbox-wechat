@@ -127,7 +127,7 @@ def check(packet_path, content_only=False, verify_media=False):
     if not re.search(r"^## .*官方资料", markdown, re.M):
         errors.append("缺少文末官方资料区")
     # Exclude fenced prompts/code: URLs inside copyable examples are not source clutter.
-    prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```[^\n]*$", "", markdown)
+    prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```[^\n]*$", "CODE_BLOCK", markdown)
     parts = re.split(r"^## .*官方资料[^\n]*\n", prose, flags=re.M, maxsplit=1)
     before_sources = parts[0]
     source_text = parts[1] if len(parts) == 2 else ""
