@@ -99,3 +99,8 @@ record 允许：`article_key`、`article_id`、`title`、`task`、`source_urls`�
 `scripts/workflow_ledger.py` 是旧本地台账工具，不能替代云接口。运行前读取总入口私有 runtime.json：cloud 模式下所有本地写命令（import-index、record-topic、reconcile、record-review、record-receipt）拒绝执行；`list` 只能查看明确标成非权威的旧备份。迁移、恢复与模拟需明确隔离并由总控处理，不把本地 JSON 双向同步成第二个主库。
 
 Muse 只需已有 REST/MCP 连接：读公开规则→查云台账→按当前 revision 记录研究/审核/准备→按既有草稿接口保存→核对服务回执与云记录。若没有脚本运行能力，按相同 preflight 标准人工检查并保留证据，不声称运行过本地脚本；图检、请求冻结和交付边界不因此省略。
+
+
+## v2.0.0 内容与排版证据
+
+内容审核同时核对愿读与可用。render_review仅是当前远端HTML的机器检查摘要：保存回执verified仍只表示服务端正文核验，不能据machine_ok设置mobile_preview=checked或owner_review=approved。图片内部留白、清晰度、视频可播放与微信点击行为仍需实际检查。版本、commit、阅读字符数和未验范围使用现有editorial_note/review记录，不新建另一套权威台账。

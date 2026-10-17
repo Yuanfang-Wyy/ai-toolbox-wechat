@@ -3,7 +3,7 @@ name: wechat-draft-delivery
 description: 通过《AI顺手工具箱》已有授权连接串行创建、更新或核查公众号草稿，执行预检、固定请求、快照比较与回执核验；只处理草稿，不发表或绕过接口限制。
 metadata:
   owner: wangyuyang
-  version: "1.6.0"
+  version: "2.0.0"
 ---
 
 # 公众号草稿交付

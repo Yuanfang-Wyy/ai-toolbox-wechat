@@ -1,6 +1,6 @@
 # AI顺手工具箱 Skill 套件
 
-版本：**1.6.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
+版本：**2.0.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
 
 | Skill | 用途 |
 |---|---|
@@ -9,13 +9,17 @@
 | [视觉制作](skills/wechat-visual/SKILL.md) | 图位、真实素材、示意图、封面与预览检查 |
 | [草稿交付](skills/wechat-draft-delivery/SKILL.md) | 固定请求、串行保存、快照与回执核验 |
 
+## v2.0.0 短图文改版
+
+一个主场景、600—900可见字符参考、完整可复制动作；媒体位按信息增量安排，文末2—3个有意义入口与完整可见网址。修复隐藏标题、大段留白与重复图题；内容保存核验、HTML机器检查、手机预览和本人审核分别记录。
+
 ## Muse 与网页 Agent
 
 公开阅读入口：[MUSE_GUIDE.md](MUSE_GUIDE.md)。按本次任务读取总入口、对应专项和共享规范；本文件由同一源码生成，不单独维护第二套规则。
 
 可复制提示词：
 
-> 阅读本仓库 v1.6.0 的 MUSE_GUIDE.md，使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
+> 每次任务开始在线重读本仓库当前 MUSE_GUIDE.md，记录版本和commit（本版v2.0.0），使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
 
 公开读取不等于已有连接。Muse 使用现有安全凭据存储配置的 REST 或已有 OAuth MCP，直接调用云台账与草稿能力，不需新增本地依赖或让 Mac 开机。REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，当前注册版本1.1.0；运行前读取 OpenAPI 与 connection_status，确认实际部署，不因读取 Skill 就假定工具已增加。密钥不进入提示词、公开文档或仓库，台账数据也不公开。字段与请求示例见统一流程。
 

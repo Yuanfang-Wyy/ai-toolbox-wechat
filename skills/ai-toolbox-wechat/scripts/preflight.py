@@ -130,6 +130,26 @@ def check(packet_path, content_only=False, verify_media=False):
     prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```[^\n]*$", "", markdown)
     parts = re.split(r"^## .*官方资料[^\n]*\n", prose, flags=re.M, maxsplit=1)
     before_sources = parts[0]
+    source_text = parts[1] if len(parts) == 2 else ""
+    visible_sources = re.sub(r"!?\[([^\]]*)\]\([^\n]*?\)", r"\1", source_text)
+    visible_urls = re.findall(r"https://[^\s<>]+", visible_sources)
+    if not any(url.rstrip("。；，,;") in sources for url in visible_urls):
+        errors.append("官方资料区缺少可见完整网址；不能只有链接名称或 href")
+    if re.search(r"(?:\[|^|[\n ])(?:[①②③]|\d+[ ·、.．-]*)?\s*官方资料\s*\]", source_text):
+        errors.append("资料入口名称仍是官方资料占位，请写项目与安装、下载或权限说明等具体用途")
+    if re.search(r"(?m)^\s*(?:[-*+]|\d+[.)])\s*$", prose):
+        errors.append("正文含空编号或空列表项")
+    if re.search(r"\n[ \t]*\n[ \t]*\n", prose):
+        warnings.append("正文存在连续空行；段落间只留一空行，不用空白撑版")
+    if re.search(r"(?:<br\s*/?>\s*){2,}", prose, re.I):
+        errors.append("正文含连续 br 撑高空白")
+    reading = markdown.split("## 官方资料", 1)[0]
+    reading = re.sub(r"!\[[^\]]*\]\([^\n]*?\)", "", reading)
+    reading = re.sub(r"\[([^\]]+)\]\([^\n]*?\)", r"\1", reading)
+    reading = re.sub(r"https?://[^\s<>]+|<[^>]+>", "", reading)
+    reader_chars = len(re.sub(r"[\s#*`_>|]", "", reading))
+    if reader_chars > 1200:
+        warnings.append("阅读字符数超过1200；检查重复与功能堆砌，必要内容在 editorial_note 说明，不转图片规避")
     images = re.findall(r'!\[[^\]]*\]\((https://[^\s)]+)(?:\s+"[^"\n]*")?\)', markdown)
     raw_images = re.findall(r'!\[[^\]]*\]\(([^)\n]+)\)', markdown)
     if len(raw_images) != len(images):
@@ -192,7 +212,7 @@ def check(packet_path, content_only=False, verify_media=False):
     if content_only:
         warnings.append("仅内容检查，不代表具备微信更新条件")
     media_verified = len(raw_images) == len(images) and (not images or bool(media_results) and all(row["verified"] for row in media_results))
-    return packet, markdown, {"ok": not errors, "errors": errors, "warnings": warnings, "image_count": len(raw_images), "uploadable_image_count": len(images), "local_image_count": len(local_images), "heading_count": len(headings), "media_verified": media_verified, "media_results": media_results, "live_verified": False}
+    return packet, markdown, {"ok": not errors, "errors": errors, "warnings": warnings, "reader_chars": reader_chars, "visible_source_urls": visible_urls, "image_count": len(raw_images), "uploadable_image_count": len(images), "local_image_count": len(local_images), "heading_count": len(headings), "media_verified": media_verified, "media_results": media_results, "live_verified": False}
 
 
 def prepare(packet_path, output, verify_media=False):
