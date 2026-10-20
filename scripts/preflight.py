@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 MAX_IMAGE_BYTES = 1_000_000
 WRITING_MODES = ("tested-tutorial", "documented-workflow", "task-comparison", "template-delivery")
+SOURCE_HEADING = r"^## [^\n]*(?:官方资料|官方入口|官方来源|资料与入口|项目入口)[^\n]*(?:\n|$)"
 
 
 def valid_image_url(url):
@@ -124,11 +125,11 @@ def check(packet_path, content_only=False, verify_media=False):
         warnings.append("成果匹配和证据文件存在不代表流程跑通或附件可用，仍需按验收方法检查")
     else:
         warnings.append("旧版交接包兼容检查；新写文章使用 packet_version=2 并记录实际成果")
-    if not re.search(r"^## .*官方资料", markdown, re.M):
+    if not re.search(SOURCE_HEADING, markdown, re.M):
         errors.append("缺少文末官方资料区")
     # Exclude fenced prompts/code: URLs inside copyable examples are not source clutter.
     prose = re.sub(r"(?ms)^```[^\n]*\n.*?^```[^\n]*$", "CODE_BLOCK", markdown)
-    parts = re.split(r"^## .*官方资料[^\n]*\n", prose, flags=re.M, maxsplit=1)
+    parts = re.split(SOURCE_HEADING, prose, flags=re.M, maxsplit=1)
     before_sources = parts[0]
     source_text = parts[1] if len(parts) == 2 else ""
     visible_sources = re.sub(r"!?\[([^\]]*)\]\([^\n]*?\)", r"\1", source_text)
@@ -143,7 +144,7 @@ def check(packet_path, content_only=False, verify_media=False):
         warnings.append("正文存在连续空行；段落间只留一空行，不用空白撑版")
     if re.search(r"(?:<br\s*/?>\s*){2,}", prose, re.I):
         errors.append("正文含连续 br 撑高空白")
-    reading = markdown.split("## 官方资料", 1)[0]
+    reading = re.split(SOURCE_HEADING, markdown, flags=re.M, maxsplit=1)[0]
     reading = re.sub(r"!\[[^\]]*\]\([^\n]*?\)", "", reading)
     reading = re.sub(r"\[([^\]]+)\]\([^\n]*?\)", r"\1", reading)
     reading = re.sub(r"https?://[^\s<>]+|<[^>]+>", "", reading)
