@@ -3,7 +3,7 @@ name: wechat-topic-research
 description: 为《AI顺手工具箱》研究和筛选公众号选题，按读者任务查重、核对官方证据、使用门槛与适合的写法；适用于找题、验证题目或补资料，不直接写入微信草稿。
 metadata:
   owner: wangyuyang
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # 公众号选题研究
