@@ -149,8 +149,8 @@ def check(packet_path, content_only=False, verify_media=False):
     reading = re.sub(r"\[([^\]]+)\]\([^\n]*?\)", r"\1", reading)
     reading = re.sub(r"https?://[^\s<>]+|<[^>]+>", "", reading)
     reader_chars = len(re.sub(r"[\s#*`_>|]", "", reading))
-    if reader_chars > 1200:
-        warnings.append("阅读字符数超过1200；检查重复与功能堆砌，必要内容在 editorial_note 说明，不转图片规避")
+    if reader_chars > 1500:
+        warnings.append("阅读字符数超过默认约1500字；检查重复与功能堆砌，必要内容在 editorial_note 说明，不硬凑字数或转图片规避")
     images = re.findall(r'!\[[^\]]*\]\((https://[^\s)]+)(?:\s+"[^"\n]*")?\)', markdown)
     raw_images = re.findall(r'!\[[^\]]*\]\(([^)\n]+)\)', markdown)
     if len(raw_images) != len(images):
