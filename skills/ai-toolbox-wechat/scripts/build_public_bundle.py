@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 
-VERSION = "2.1.1"
+VERSION = "2.2.0"
 NAMES = ("ai-toolbox-wechat", "wechat-topic-research", "wechat-visual", "wechat-draft-delivery")
 REFS = ("editorial", "collaboration", "visual", "visual-production", "delivery", "feedback", "provenance", "workflow", "content-craft")
 MAIN_FILES = ("SKILL.md", "agents/openai.yaml", "assets/article-packet.json", "assets/cover-layout.svg", "assets/workflow-example.svg") + tuple("references/" + name + ".md" for name in REFS) + tuple("scripts/" + name for name in ("preflight.py", "preview_cover.py", "workflow_ledger.py", "build_public_bundle.py"))
@@ -52,7 +52,7 @@ def build(source, output, manifest):
         contents[relative] = text
     contents["README.md"] = """# AI顺手工具箱 Skill 套件
 
-版本：**2.1.1**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
+版本：**2.2.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
 
 | Skill | 用途 |
 |---|---|
@@ -61,9 +61,11 @@ def build(source, output, manifest):
 | [视觉制作](skills/wechat-visual/SKILL.md) | 图位、真实素材、示意图、封面与预览检查 |
 | [草稿交付](skills/wechat-draft-delivery/SKILL.md) | 固定请求、串行保存、快照与回执核验 |
 
-## v2.1.1 默认约1500字
+## v2.2.0 标题亮点与封面同文
 
-单工具稿默认约1500字，按编辑标准的可见非空字符口径统计；保留具体示例、典型场景步骤、结果核对和必要限制，不要求恰好1500，不为凑字重复介绍。同步更新预检的篇幅提醒。沿用v2.1.0的场景上手与明亮蓝绿排版，不改变交付权限或微信额度停止条件。
+单工具稿统一“工具名 - 后半句”，比较或方法稿用“主题名 - 后半句”；半角短横线两侧各一空格，完整标题最多32字符。后半句从具体麻烦与本任务最有辨识度的做法或结果切入，亮点须与官方资料或实测证据相称，不写无依据的最强排名、效率倍数或自动化承诺。封面主标题与文章标题同文，只按视觉宽度换行；横图与方形裁切分别核查，不能把本地更新报成微信封面已同步。
+
+保留约1500字、短编号功能概览、一个典型场景、完整操作与结果核对，沿用用户已确认的明亮蓝绿排版。不改变交付权限、既有任务启停状态或微信额度停止条件。
 
 ## 场景上手与明亮蓝绿排版
 
@@ -75,7 +77,7 @@ def build(source, output, manifest):
 
 可复制提示词：
 
-> 每次任务开始在线重读本仓库当前 MUSE_GUIDE.md，记录版本和commit（本版v2.1.1），使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。单工具稿默认约1500字，保留示例、步骤和结果核对，不硬凑字数。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
+> 每次任务开始在线重读本仓库当前 MUSE_GUIDE.md，记录版本和commit（本版v2.2.0），使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。单工具稿默认约1500字，保留示例、步骤和结果核对，不硬凑字数。标题用“工具名/主题名 - 后半句”，突出具体麻烦与可证实亮点，封面主标题同文，不捏造效果或同类排名。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
 
 公开读取不等于已有连接。Muse 使用现有安全凭据存储配置的 REST 或已有 OAuth MCP，直接调用云台账与草稿能力，不需新增本地依赖或让 Mac 开机。REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，当前注册版本1.1.0；运行前读取 OpenAPI 与 connection_status，确认实际部署，不因读取 Skill 就假定工具已增加。密钥不进入提示词、公开文档或仓库，台账数据也不公开。字段与请求示例见统一流程。
 
@@ -105,7 +107,7 @@ python3 scripts/build_public_bundle.py --skill-root /path/to/skill-directory --o
 
 输出目录必须为空。构建仅包含明确允许的规则、脚本和示例资源，不打包私有台账、稿件、回执、实测图片、缓存或服务器配置。公开包不新增模型 API、图床、付费服务或发表权限。模板 SVG 是示意，不是产品实测截图。版权与来源说明见 [provenance.md](skills/ai-toolbox-wechat/references/provenance.md)。
 """
-    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**2.1.1**。默认篇幅约1500字，详见编辑标准。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。每次任务先在线重读本页并核对版本与commit，不能仅凭旧缓存；后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
+    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**2.2.0**。默认篇幅约1500字；标题突出具体麻烦与可证实亮点，封面主标题同文，详见编辑标准。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。每次任务先在线重读本页并核对版本与commit，不能仅凭旧缓存；后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
     sections.extend("- [" + name + "](#skill-" + name + ")\n" for name in NAMES)
     sections.extend("- [" + name + "](#ref-" + name + ")\n" for name in REFS)
     for name in NAMES:
