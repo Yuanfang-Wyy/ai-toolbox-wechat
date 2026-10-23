@@ -3,7 +3,7 @@ name: wechat-draft-delivery
 description: 通过《AI顺手工具箱》已有授权连接串行创建、更新或核查公众号草稿，执行预检、固定请求、快照比较与回执核验；只处理草稿，不发表或绕过接口限制。
 metadata:
   owner: wangyuyang
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 
 # 公众号草稿交付
@@ -20,6 +20,7 @@ metadata:
 
 - 先确认当前任务已授权创建或更新草稿。查看、盘点、审稿和连接检查只读；不能因加载 Skill 自动上传。正式发表、群发和定时发表均交用户本人在后台操作。
 - 按现有 schema 发现八项逻辑能力：状态、草稿列表/读取/创建/更新，以及云台账列表/读取/合并准备字段，确认 `publishing_enabled=false`。能力或发表边界不明时暂停写入，继续本地检查。
+- 提交前按 [内容目录](../ai-toolbox-wechat/references/content-registry.md) 再查当前及history，核对认领owner、revision和同工具/同任务是否有新增；已保存或在写的稿件不能因改标题另建。
 - 查同一云台账与原任务，确认 `article_key`、正文指纹、审过的版本和原 `article_id`；项目索引不是完整微信草稿箱。更新必须先读取有效远端绑定及最新 `expected_snapshot`，不根据 `approved` 字段猜测可否更新。
 - 沿用 `packet.json` 运行总入口 `scripts/preflight.py` 的 `check` 和必要的 `prepare --verify-media`。固定 `request_id`、请求参数与指纹，冻结交付版本，并以当前云台账 revision 保存 request_id、payload_sha256、content_sha256 与 prepared；prepared 不是微信成功回执。同一请求不得替换内容，也不覆盖已存在的不同参数文件。
 

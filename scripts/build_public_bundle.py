@@ -7,10 +7,10 @@ import re
 from pathlib import Path
 
 
-VERSION = "2.2.0"
+VERSION = "2.3.0"
 NAMES = ("ai-toolbox-wechat", "wechat-topic-research", "wechat-visual", "wechat-draft-delivery")
-REFS = ("editorial", "collaboration", "visual", "visual-production", "delivery", "feedback", "provenance", "workflow", "content-craft")
-MAIN_FILES = ("SKILL.md", "agents/openai.yaml", "assets/article-packet.json", "assets/cover-layout.svg", "assets/workflow-example.svg") + tuple("references/" + name + ".md" for name in REFS) + tuple("scripts/" + name for name in ("preflight.py", "preview_cover.py", "workflow_ledger.py", "build_public_bundle.py"))
+REFS = ("editorial", "collaboration", "visual", "visual-production", "delivery", "feedback", "provenance", "workflow", "content-craft", "content-registry")
+MAIN_FILES = ("SKILL.md", "agents/openai.yaml", "assets/article-packet.json", "assets/cover-layout.svg", "assets/workflow-example.svg", "assets/cover-scene-prompt.md", "assets/cover-example-reading.jpg", "assets/cover-example-audio.jpg") + tuple("references/" + name + ".md" for name in REFS) + tuple("scripts/" + name for name in ("preflight.py", "preview_cover.py", "workflow_ledger.py", "content_registry.py", "build_public_bundle.py"))
 
 
 def reader_links(text):
@@ -35,7 +35,7 @@ def build(source, output, manifest):
     for name in NAMES:
         paths = MAIN_FILES if name == NAMES[0] else ("SKILL.md", "agents/openai.yaml")
         for relative in paths:
-            text = (source / name / relative).read_text(encoding="utf-8")
+            text = (source / name / relative).read_bytes() if relative.endswith(".jpg") else (source / name / relative).read_text(encoding="utf-8")
             if relative == "SKILL.md" and 'version: "' + VERSION + '"' not in text:
                 raise ValueError("Skill 版本不一致：" + name)
             if relative == "references/visual-production.md":
@@ -52,7 +52,7 @@ def build(source, output, manifest):
         contents[relative] = text
     contents["README.md"] = """# AI顺手工具箱 Skill 套件
 
-版本：**2.2.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
+版本：**2.3.0**。保留 `$ai-toolbox-wechat` 总入口，按需使用三个专项：
 
 | Skill | 用途 |
 |---|---|
@@ -61,7 +61,13 @@ def build(source, output, manifest):
 | [视觉制作](skills/wechat-visual/SKILL.md) | 图位、真实素材、示意图、封面与预览检查 |
 | [草稿交付](skills/wechat-draft-delivery/SKILL.md) | 固定请求、串行保存、快照与回执核验 |
 
-## v2.2.0 标题亮点与封面同文
+## v2.3.0 场景封面与云端内容认领
+
+封面采用已确认的蓝绿/米白场景插画、深色大标题与完整原题，每篇画面对应具体任务，检查横图、中心方图和手机缩略图；原生生图，禁止代码覆盖文字。参考两张示例图和通用提示词，不复制占位框圆点。
+
+同一私有云workflow是唯一内容目录。新题先全分页查当前及history、官方标识和别名，缺网址/not_submitted不代表没写过；同工具已出现默认避开，真正不同任务要比对原key并审阅留痕。零记录工具按规范官方ID的SHA256生成固定key，expected_revision=0认领owner，成功后才开写，409不换key。提交前再查；历史身份不改名，不能另建同题。完整协议与Muse可复制请求见[内容目录](skills/ai-toolbox-wechat/references/content-registry.md)。
+
+## 标题亮点与封面同文
 
 单工具稿统一“工具名 - 后半句”，比较或方法稿用“主题名 - 后半句”；半角短横线两侧各一空格，完整标题最多32字符。后半句从具体麻烦与本任务最有辨识度的做法或结果切入，亮点须与官方资料或实测证据相称，不写无依据的最强排名、效率倍数或自动化承诺。封面主标题与文章标题同文，只按视觉宽度换行；横图与方形裁切分别核查，不能把本地更新报成微信封面已同步。
 
@@ -77,7 +83,7 @@ def build(source, output, manifest):
 
 可复制提示词：
 
-> 每次任务开始在线重读本仓库当前 MUSE_GUIDE.md，记录版本和commit（本版v2.2.0），使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。单工具稿默认约1500字，保留示例、步骤和结果核对，不硬凑字数。标题用“工具名/主题名 - 后半句”，突出具体麻烦与可证实亮点，封面主标题同文，不捏造效果或同类排名。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
+> 每次任务开始在线重读本仓库当前 MUSE_GUIDE.md，记录版本和commit（本版v2.3.0），使用 AI顺手工具箱总入口处理我的任务，按需调用选题研究、视觉制作和草稿交付规则。单工具稿默认约1500字，保留示例、步骤和结果核对，不硬凑字数。标题用“工具名/主题名 - 后半句”，突出具体麻烦与可证实亮点，场景插画封面主标题同文，不捏造效果或同类排名。全分页检查云目录当前及history、来源和别名，已有工具默认避开，先认领owner再写，409不换key；缺网址和待核对任务不代表没写过。先检查现有连接 api_version=1.1.0、workflow_enabled=true、workflow_storage=cloud、publishing_enabled=false。经同一授权 REST/MCP 分页查云台账去重，沿用原 article_key；每次先读 revision，再只合并本次准备字段。由唯一交付入口用稳定 request_id 保存，核对 verified 与 ledger_sync 及云记录。台账同步 pending 时先查原ID，不换号重建。没有连接时交付 packet 和本地成果，不自建第二主库，不声称已写微信。只按当前授权存草稿，正式发表由我本人操作。
 
 公开读取不等于已有连接。Muse 使用现有安全凭据存储配置的 REST 或已有 OAuth MCP，直接调用云台账与草稿能力，不需新增本地依赖或让 Mac 开机。REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，当前注册版本1.1.0；运行前读取 OpenAPI 与 connection_status，确认实际部署，不因读取 Skill 就假定工具已增加。密钥不进入提示词、公开文档或仓库，台账数据也不公开。字段与请求示例见统一流程。
 
@@ -105,9 +111,9 @@ def build(source, output, manifest):
 python3 scripts/build_public_bundle.py --skill-root /path/to/skill-directory --output /path/to/new-public-bundle --manifest /path/to/private-audit.json
 ```
 
-输出目录必须为空。构建仅包含明确允许的规则、脚本和示例资源，不打包私有台账、稿件、回执、实测图片、缓存或服务器配置。公开包不新增模型 API、图床、付费服务或发表权限。模板 SVG 是示意，不是产品实测截图。版权与来源说明见 [provenance.md](skills/ai-toolbox-wechat/references/provenance.md)。
+输出目录必须为空。构建仅包含明确允许的规则、脚本和示例资源，不打包私有台账、稿件、回执、实测图片、缓存或服务器配置。公开包不新增模型 API、图床、付费服务或发表权限。模板 SVG 仅作裁切示意，不是新版成品封面；两张已确认编辑封面仅作风格示例，不是产品实测截图。实际逐稿提示词保留私有目录，公开只放通用框架。版权与来源说明见 [provenance.md](skills/ai-toolbox-wechat/references/provenance.md)。
 """
-    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**2.2.0**。默认篇幅约1500字；标题突出具体麻烦与可证实亮点，封面主标题同文，详见编辑标准。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。每次任务先在线重读本页并核对版本与commit，不能仅凭旧缓存；后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
+    sections = ["# AI顺手工具箱：Muse 完整阅读版\n\n版本：**2.3.0**。默认篇幅约1500字；采用场景插画和完整同文大标题；全分页查云目录当前及history、工具标识与别名，认领后开写，409不换key。详见内容目录和视觉标准。本页由四个 Skill 与共享参考生成。按任务读相关章节；读取规则不等于拥有执行、台账或微信工具权限。每次任务先在线重读本页并核对版本与commit，不能仅凭旧缓存；后续交接沿用同一正文版本和文章标识。实际私有台账不在此公开仓库。云台账由现有授权服务持久保存，Mac 关机后仍可访问；先核对 api_version=1.1.0 与 workflow_enabled=true，不从本地备份写生产。Muse 无需新增本地依赖，接口与可复制 JSON 见统一流程章节。\n\n## 导航\n"]
     sections.extend("- [" + name + "](#skill-" + name + ")\n" for name in NAMES)
     sections.extend("- [" + name + "](#ref-" + name + ")\n" for name in REFS)
     for name in NAMES:
@@ -120,8 +126,8 @@ python3 scripts/build_public_bundle.py --skill-root /path/to/skill-directory --o
     for relative, text in contents.items():
         target = output / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(text, encoding="utf-8")
-    report = {"version": VERSION, "file_count": len(contents), "files": [{"path": path, "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()} for path, text in sorted(contents.items())], "generated_legacy_root": True, "generated_muse_reader": True, "private_runtime_data_included": False}
+        target.write_bytes(text) if isinstance(text, bytes) else target.write_text(text, encoding="utf-8")
+    report = {"version": VERSION, "file_count": len(contents), "files": [{"path": path, "sha256": hashlib.sha256(text if isinstance(text, bytes) else text.encode("utf-8")).hexdigest()} for path, text in sorted(contents.items())], "generated_legacy_root": True, "generated_muse_reader": True, "private_runtime_data_included": False}
     manifest.parent.mkdir(parents=True, exist_ok=True)
     if manifest.exists():
         raise ValueError("manifest 已存在，选择新的审计文件")
