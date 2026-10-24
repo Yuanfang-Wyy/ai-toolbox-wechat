@@ -567,7 +567,7 @@ python3 scripts/preview_cover.py --image assets/cover-layout.svg --output /tmp/c
 
 ## 当前连接
 
-优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.yuanfangwyy.xyz/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
+优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.wangyuyangwyy.com/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
 
 | 逻辑能力 | 参数与边界 | 当前私有 REST 对应操作 |
 |---|---|---|
@@ -757,7 +757,7 @@ approved 不能作为通用更新锁。40007 表示本次远端读取未成功�
 
 - 统筹方按“读者要完成的任务 + 工具官方标识”分配稳定 `article_key`。题目改名不换标识；同一工具的不同任务可分别成题，不同工具解决同一任务要先比较角度是否重复。
 - 查重覆盖已发表、已有草稿、待研究和已否决；同时看工具、任务和场景，不只做标题精确匹配。已否决记录保留理由，出现新版本或新证据可以重新评估。
-- v1.5.0 以既有授权服务的私有云台账为唯一权威记录，REST 基址为 `https://www.yuanfangwyy.xyz/api/drafts/v1`，或使用同服务的 MCP 台账工具。台账在云端持久保存，Muse 与 Codex 共用，不要求 Mac 开机或共享本地文件。正式使用先检查 `api_version=1.1.0`、`workflow_enabled=true`、`workflow_storage=cloud` 与 `publishing_enabled=false`。
+- v1.5.0 以既有授权服务的私有云台账为唯一权威记录，REST 基址为 `https://www.wangyuyangwyy.com/api/drafts/v1`，或使用同服务的 MCP 台账工具。台账在云端持久保存，Muse 与 Codex 共用，不要求 Mac 开机或共享本地文件。正式使用先检查 `api_version=1.1.0`、`workflow_enabled=true`、`workflow_storage=cloud` 与 `publishing_enabled=false`。
 - 本机私有 `runtime.json` 标记 `ledger_mode=cloud`；其中原 ledger_path 仅指只读备份。配置、旧台账、稿件和回执均不进入公开包。没有配置的 Muse 也可用已授权连接按下节访问云台账，无需新装依赖、读取服务器文件或粘贴密钥。云连接不可用时只保留待同步 packet，不回退成另一份生产主库。
 - 台账关联 `article_key`、负责人、标题与任务、`article_id`、正文版本/指纹、`delivery_key`、`request_id`、各环节状态及证据/错误。版本指纹为 UTF-8 `title + "\n" + markdown` 的 SHA-256；请求 payload 指纹另行保存。保留历史回执，不用新索引覆盖已确认事实。
 - 云端项目索引用于对账和定位已有 `article_id`，不是微信完整草稿列表。没有条目、远端读取失败或 `has_wechat_draft=false` 都不能单独证明微信没有稿件，也不授权重新创建。
@@ -911,7 +911,7 @@ Muse 不依赖 Mac 上三个辅助目录：按本节做同等事实保护和图�
 
 ## 一个地方保存全部内容记录
 
-唯一权威目录是已有私有云台账 `https://www.yuanfangwyy.xyz/api/drafts/v1/workflow`，与草稿服务使用原有授权。Muse、Dot、Codex 都检查这里；Mac 关机后仍可读写。公开 GitHub 只保存规则和匿名示例，不放真实目录、稿件、回执、认领信息或凭证；本机导出是带采集时间的只读证据，不是第二主库。
+唯一权威目录是已有私有云台账 `https://www.wangyuyangwyy.com/api/drafts/v1/workflow`，与草稿服务使用原有授权。Muse、Dot、Codex 都检查这里；Mac 关机后仍可读写。公开 GitHub 只保存规则和匿名示例，不放真实目录、稿件、回执、认领信息或凭证；本机导出是带采集时间的只读证据，不是第二主库。
 
 目录包含已知选题、已写稿件、交付记录和历史版本。微信后台发表、删除或改名，不会使旧题变成新题；不能因 `delivery=not_submitted`、缺网址、任务写“待核对原文任务”或远端不可读，就认定没有写过。项目迁移覆盖范围仍按 `index_coverage` 报告，不把本目录称为微信全历史实况。
 

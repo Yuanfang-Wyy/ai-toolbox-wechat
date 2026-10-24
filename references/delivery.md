@@ -4,7 +4,7 @@
 
 ## 当前连接
 
-优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.yuanfangwyy.xyz/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
+优先使用宿主提供的“AI顺手工具箱”现有连接。下表是逻辑能力名：MCP 按实际 schema 映射宿主前缀和参数，REST 按现有 OpenAPI 映射 HTTP 操作；已有 CLI 则按其公开帮助映射相同能力，不猜命令或 endpoint。v1.5.0 使用草稿与云台账共八项能力，服务器禁用正文模型调用与正式发表。实际 OpenAPI 为 `https://www.wangyuyangwyy.com/api/drafts/v1/openapi.json`；服务 api_version=1.1.0 且 workflow_enabled=true 才表示云台账可用。公开规则的版本与部署版本分别核对。
 
 | 逻辑能力 | 参数与边界 | 当前私有 REST 对应操作 |
 |---|---|---|

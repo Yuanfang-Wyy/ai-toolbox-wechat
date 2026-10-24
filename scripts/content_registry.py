@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-BASE = "https://www.yuanfangwyy.xyz/api/drafts/v1"
+BASE = "https://www.wangyuyangwyy.com/api/drafts/v1"
 
 
 def tool_id(url):
